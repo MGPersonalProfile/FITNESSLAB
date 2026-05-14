@@ -7,10 +7,27 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-mono);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-anton);
   --font-anton: var(--font-anton);
+
+  /* ====== FitnessLAB design tokens ====== */
+  --color-bg:         var(--bg);
+  --color-bg-elev:    var(--bg-elev);
+  --color-bg-elev-2:  var(--bg-elev-2);
+  --color-fg:         var(--fg);
+  --color-fg-dim:     var(--fg-dim);
+  --color-fg-faint:   var(--fg-faint);
+  --color-fg-ghost:   var(--fg-ghost);
+  --color-accent:     var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-low: var(--accent-low);
+  --color-grid:       var(--grid);
+  --color-rule:       var(--rule);
+  --color-success:    var(--success);
+  --color-warning:    var(--warning);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -29,7 +46,6 @@
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -40,6 +56,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -50,43 +67,138 @@
 }
 
 :root, .dark {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #09090b;
-  --card-foreground: #ffffff;
-  --popover: #09090b;
-  --popover-foreground: #ffffff;
-  --primary: #dc2626;
+  /* ====== FitnessLAB tokens ====== */
+  --bg:         #0a0a0a;
+  --bg-elev:    #111111;
+  --bg-elev-2:  #181818;
+  --fg:         #f2f2f2;
+  --fg-dim:     #8a8a8a;
+  --fg-faint:   #4a4a4a;
+  --fg-ghost:   #2a2a2a;
+  --accent:     #ff2d2d;
+  --accent-dim: #b51d1d;
+  --accent-low: #2a0a0a;
+  --grid:       #161616;
+  --rule:       #1f1f1f;
+  --success:    #44e08b;
+  --warning:    #ffb648;
+
+  /* shadcn carry-overs (mostly unused after refactor, kept for compat) */
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --card: var(--bg-elev);
+  --card-foreground: var(--fg);
+  --popover: var(--bg-elev);
+  --popover-foreground: var(--fg);
+  --primary: var(--accent);
   --primary-foreground: #ffffff;
-  --secondary: #27272a;
-  --secondary-foreground: #ffffff;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
+  --secondary: var(--bg-elev-2);
+  --secondary-foreground: var(--fg);
+  --muted: var(--bg-elev-2);
+  --muted-foreground: var(--fg-dim);
   --accent-foreground: #ffffff;
-  --destructive: #7f1d1d;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #dc2626;
-  --radius: 0.625rem;
-  --sidebar: #09090b;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #dc2626;
+  --destructive: var(--accent);
+  --border: var(--rule);
+  --input: var(--rule);
+  --ring: var(--accent);
+  --radius: 0.5rem;
+  --sidebar: var(--bg-elev);
+  --sidebar-foreground: var(--fg);
+  --sidebar-primary: var(--accent);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #dc2626;
+  --sidebar-accent: var(--bg-elev-2);
+  --sidebar-accent-foreground: var(--fg);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--accent);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground;
+    /* iOS PWA safe areas */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  html {
-    @apply font-sans;
-  }
+  /* Disable iOS double-tap zoom on interactive elements */
+  button, a, label, input, select { touch-action: manipulation; }
 }
+
+/* ====== Reusable utilities ====== */
+.font-display { font-family: var(--font-anton), sans-serif; }
+.font-mono    { font-family: var(--font-mono), ui-monospace, monospace; }
+
+/* Grid paper background — for surfaces that want lab-paper feel */
+.bg-grid {
+  background-image:
+    linear-gradient(to right,  var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.bg-grid-fine {
+  background-image:
+    linear-gradient(to right,  var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* Dashed rule used as section dividers (lab-report vibe) */
+.rule-dashed {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--rule) 0,
+    var(--rule) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  height: 1px;
+}
+
+/* Tiny tick marks for calibration accents */
+.ticks-h {
+  background-image: linear-gradient(to right, var(--fg-ghost) 1px, transparent 1px);
+  background-size: 12px 8px;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  height: 8px;
+}
+
+/* Scanlines for the scanning state — subtle */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 45%, rgba(255,45,45,0.18) 50%, transparent 55%);
+  animation: scanline 2.2s linear infinite;
+  pointer-events: none;
+}
+
+/* Blink for "REC"-style indicators */
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+.animate-blink { animation: blink 1.2s ease-in-out infinite; }
+
+/* Marquee for ANALYZING strip */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 12s linear infinite; }
+
+/* Hide native input styling we don't want */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Hide scrollbars on horizontal mini-rails (HISTORIAL preview, etc.) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }

@@ -1,26 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Geist, Geist_Mono } from "next/font/google";
+import { Anton, Martian_Mono } from "next/font/google";
 import "./globals.css";
 
 const anton = Anton({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-anton",
+  display: "swap",
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const martianMono = Martian_Mono({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "FitnessLAB",
-  description: "Escanea tu comida y controla tus macros",
+  description: "Escanea tu comida. Mide tus macros. Sin teclado.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -34,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -50,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${anton.variable} h-full antialiased`}
+      className={`${anton.variable} ${martianMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col overscroll-none">{children}</body>
     </html>

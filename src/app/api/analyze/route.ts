@@ -2,52 +2,49 @@ import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
+const AnalysisSchema = z.object({
+  nombre: z.string().describe('Concise food name in Spanish, e.g. "Pollo a la plancha con arroz"'),
+  calorias: z.number().int().describe('Total calories (kcal) for the visible portion'),
+  proteinas: z.number().int().describe('Protein grams for the visible portion'),
+  grasas: z.number().int().describe('Fat grams for the visible portion'),
+  carbohidratos: z.number().int().describe('Carb grams for the visible portion'),
+  fibra: z.number().int().describe('Fiber grams for the visible portion'),
+  azucar: z.number().int().describe('Sugar grams for the visible portion'),
+  tipo_comida: z
+    .enum(['Desayuno', 'Almuerzo', 'Cena', 'Snack'])
+    .describe('Best guess of the meal slot based on the food shown'),
+});
+
 export async function POST(req: Request) {
   try {
     const { image } = await req.json();
 
     if (!image) {
-      return new Response(JSON.stringify({ error: 'No image provided' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return Response.json({ error: 'No image provided' }, { status: 400 });
     }
 
     const { object } = await generateObject({
       model: google('gemini-2.5-flash'),
-      system: 'You are an enthusiastic, hardcore gym coach and expert nutritionist. Your task is to accurately evaluate a photo of a meal and estimate its nutritional content. Cross-reference your knowledge to provide highly accurate macros, including fiber and sugar. Guess the "tipo_comida" (Desayuno, Almuerzo, Cena, Snack) based on the food type. Provide an enthusiastic, motivational "comentario_coach" pushing the user to their limits. Always respond with the best possible estimates.',
+      system:
+        'Eres un nutricionista experto. Analiza la foto de comida y devuelve macros precisos para la porción visible. ' +
+        'Sé conservador: si dudas entre dos valores, elige el más probable, no el más alto. ' +
+        'El nombre debe ser corto y descriptivo en español. ' +
+        'Adivina "tipo_comida" según qué se está comiendo (Desayuno/Almuerzo/Cena/Snack).',
       messages: [
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'Evaluate this meal and estimate its macros and calories.' },
-            { type: 'image', image: image },
+            { type: 'text', text: 'Analiza esta comida y devuelve los macros estimados.' },
+            { type: 'image', image },
           ],
         },
       ],
-      schema: z.object({
-        nombre: z.string(),
-        calorias: z.number(),
-        proteinas: z.number(),
-        grasas: z.number(),
-        carbohidratos: z.number(),
-        fibra: z.number(),
-        azucar: z.number(),
-        tipo_comida: z.enum(['Desayuno', 'Almuerzo', 'Cena', 'Snack']),
-        calidad_nutricional: z.number().min(1).max(10),
-        comentario_coach: z.string(),
-      }),
+      schema: AnalysisSchema,
     });
 
-    return new Response(JSON.stringify(object), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json(object);
   } catch (error) {
-    console.error('API Error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to analyze image' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error('Analyze API error:', error);
+    return Response.json({ error: 'Failed to analyze image' }, { status: 500 });
   }
 }
