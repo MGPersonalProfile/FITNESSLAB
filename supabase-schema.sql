@@ -24,3 +24,114 @@ CREATE POLICY "Users can update their own profile" ON profiles
 CREATE POLICY "Users can insert their own profile" ON profiles
   FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = id);
+
+-- Drop the old scans table if it exists to cleanly migrate
+DROP TABLE IF EXISTS scans;
+
+-- Create food_logs table
+CREATE TABLE IF NOT EXISTS food_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  log_date date DEFAULT current_date NOT NULL,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  food_name text NOT NULL,
+  calories integer NOT NULL,
+  protein integer NOT NULL,
+  fat integer NOT NULL,
+  carbs integer NOT NULL,
+  fiber integer NOT NULL DEFAULT 0,
+  sugar integer NOT NULL DEFAULT 0,
+  meal_type text CHECK (meal_type IN ('Desayuno', 'Almuerzo', 'Cena', 'Snack')),
+  image_url text,
+  is_ai_estimated boolean DEFAULT true
+);
+
+-- Enable RLS for food_logs
+ALTER TABLE food_logs ENABLE ROW LEVEL SECURITY;
+
+-- Food Logs Policies
+CREATE POLICY "Users can view their own food logs" ON food_logs
+  FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own food logs" ON food_logs
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own food logs" ON food_logs
+  FOR DELETE TO authenticated
+  USING (auth.uid() = user_id);
+
+-- Create saved_meals table
+CREATE TABLE IF NOT EXISTS saved_meals (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  meal_name text NOT NULL,
+  calories integer NOT NULL,
+  protein integer NOT NULL,
+  fat integer NOT NULL,
+  carbs integer NOT NULL,
+  fiber integer NOT NULL DEFAULT 0,
+  sugar integer NOT NULL DEFAULT 0,
+  meal_type text CHECK (meal_type IN ('Desayuno', 'Almuerzo', 'Cena', 'Snack'))
+);
+
+-- Enable RLS for saved_meals
+ALTER TABLE saved_meals ENABLE ROW LEVEL SECURITY;
+
+-- Saved Meals Policies
+CREATE POLICY "Users can view their own saved meals" ON saved_meals
+  FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own saved meals" ON saved_meals
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own saved meals" ON saved_meals
+  FOR DELETE TO authenticated
+  USING (auth.uid() = user_id);
+
+-- ============================================
+-- AUTO-CREATE PROFILE ON USER SIGNUP
+-- ============================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id)
+  VALUES (new.id);
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================
+-- INDEXES FOR PERFORMANCE
+-- ============================================
+CREATE INDEX IF NOT EXISTS idx_food_logs_user_date ON food_logs (user_id, log_date DESC);
+CREATE INDEX IF NOT EXISTS idx_food_logs_user_created ON food_logs (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_saved_meals_user ON saved_meals (user_id);
+
+-- ============================================
+-- STORAGE BUCKET FOR FOOD PHOTOS
+-- ============================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('food-photos', 'food-photos', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies
+CREATE POLICY "Users can upload their own food photos" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'food-photos' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Users can view their own food photos" ON storage.objects
+  FOR SELECT TO authenticated
+  USING (bucket_id = 'food-photos' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+CREATE POLICY "Users can delete their own food photos" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'food-photos' AND (storage.foldername(name))[1] = auth.uid()::text);

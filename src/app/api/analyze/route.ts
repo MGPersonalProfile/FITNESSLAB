@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const { object } = await generateObject({
       model: google('gemini-2.5-flash'),
-      system: 'You are an expert nutritionist. Your task is to accurately evaluate a photo of a meal and estimate its nutritional content. Always respond with the best possible estimates.',
+      system: 'You are an enthusiastic, hardcore gym coach and expert nutritionist. Your task is to accurately evaluate a photo of a meal and estimate its nutritional content. Cross-reference your knowledge to provide highly accurate macros, including fiber and sugar. Guess the "tipo_comida" (Desayuno, Almuerzo, Cena, Snack) based on the food type. Provide an enthusiastic, motivational "comentario_coach" pushing the user to their limits. Always respond with the best possible estimates.',
       messages: [
         {
           role: 'user',
@@ -31,6 +31,11 @@ export async function POST(req: Request) {
         proteinas: z.number(),
         grasas: z.number(),
         carbohidratos: z.number(),
+        fibra: z.number(),
+        azucar: z.number(),
+        tipo_comida: z.enum(['Desayuno', 'Almuerzo', 'Cena', 'Snack']),
+        calidad_nutricional: z.number().min(1).max(10),
+        comentario_coach: z.string(),
       }),
     });
 
