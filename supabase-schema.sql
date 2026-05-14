@@ -1,14 +1,26 @@
-CREATE TABLE scans (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-  nombre_comida text NOT NULL,
-  calorias integer NOT NULL,
-  proteinas integer NOT NULL,
-  grasas integer NOT NULL,
-  carbohidratos integer NOT NULL
+-- Create profiles table
+CREATE TABLE IF NOT EXISTS profiles (
+  id uuid REFERENCES auth.users PRIMARY KEY,
+  target_calories integer DEFAULT 2000,
+  target_protein integer DEFAULT 150,
+  target_carbs integer DEFAULT 200,
+  target_fat integer DEFAULT 65,
+  weight_kg numeric(5,2),
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable RLS but allow anon access for testing purposes
-ALTER TABLE scans ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Enable insert for anonymous users" ON "public"."scans" AS PERMISSIVE FOR INSERT TO public WITH CHECK (true);
-CREATE POLICY "Enable read access for all users" ON "public"."scans" AS PERMISSIVE FOR SELECT TO public USING (true);
+-- Enable RLS for profiles
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- Profiles Policies
+CREATE POLICY "Users can view their own profile" ON profiles
+  FOR SELECT TO authenticated
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile" ON profiles
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert their own profile" ON profiles
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = id);
