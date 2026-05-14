@@ -7,7 +7,7 @@ export type Tab = "hoy" | "historial" | "frecuentes" | "perfil";
 const ITEMS: { id: Tab; label: string; code: string }[] = [
   { id: "hoy",        label: "HOY",        code: "01" },
   { id: "historial",  label: "HISTORIAL",  code: "02" },
-  { id: "frecuentes", label: "LIBRARY",    code: "03" },
+  { id: "frecuentes", label: "FRECUENTES", code: "03" },
   { id: "perfil",     label: "PERFIL",     code: "04" },
 ];
 

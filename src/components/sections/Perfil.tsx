@@ -152,14 +152,14 @@ export default function Perfil({
               onClick={() => setEditing(true)}
               className="font-mono text-[10px] tracking-[0.25em] text-[var(--accent)] hover:underline"
             >
-              EDIT
+              EDITAR
             </button>
           ) : (
             <button
               onClick={() => setEditing(false)}
               className="font-mono text-[10px] tracking-[0.25em] text-[var(--fg-faint)]"
             >
-              CANCEL
+              CANCELAR
             </button>
           )}
         </div>
@@ -263,17 +263,19 @@ export default function Perfil({
             </svg>
           ) : (
             <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--fg-faint)] text-center py-6">
-              ADD MORE READINGS TO PLOT
+              {sparkData.length === 1
+                ? "REGISTRA OTRA LECTURA PARA TRAZAR"
+                : "AÚN SIN LECTURAS"}
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-3 font-mono text-[9px] tracking-[0.2em] text-[var(--fg-faint)]">
-            <span>{sparkData[0] ? formatRelativeDay(sparkData[0].log_date) : "—"}</span>
-            <span>
-              MIN {sparkData.length ? minW : "—"} · MAX {sparkData.length ? maxW : "—"}
-            </span>
-            <span>{sparkData.at(-1) ? formatRelativeDay(sparkData.at(-1)!.log_date) : "—"}</span>
-          </div>
+          {sparkData.length >= 2 && (
+            <div className="flex items-center justify-between mt-3 font-mono text-[9px] tracking-[0.2em] text-[var(--fg-faint)]">
+              <span>{formatRelativeDay(sparkData[0].log_date)}</span>
+              <span>MIN {minW} · MAX {maxW}</span>
+              <span>{formatRelativeDay(sparkData.at(-1)!.log_date)}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-stretch gap-2 mt-3">
@@ -306,7 +308,7 @@ export default function Perfil({
           CERRAR SESIÓN
         </button>
         <div className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] text-center mt-4">
-          FITNESSLAB · v1.0 · BUILT FOR THE CREW
+          FITNESSLAB · v1.0
         </div>
       </section>
     </div>

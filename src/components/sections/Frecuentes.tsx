@@ -29,10 +29,10 @@ export default function Frecuentes({ savedMeals, onAddToToday, onDelete }: Props
       {savedMeals.length === 0 ? (
         <div className="mx-5 mt-6 border border-dashed border-[var(--rule)] py-10 px-5 text-center">
           <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-            LIBRARY EMPTY
+            SIN COMIDAS GUARDADAS
           </div>
           <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--fg-dim)] mt-2">
-            Escanea una comida y guárdala como frecuente
+            Escanea algo y dale a &ldquo;guardar como frecuente&rdquo;
           </div>
         </div>
       ) : (

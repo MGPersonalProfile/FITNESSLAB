@@ -165,7 +165,7 @@ export default function Home() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
         <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)] animate-blink">
-          BOOTING SYSTEM...
+          INICIANDO...
         </div>
       </main>
     );

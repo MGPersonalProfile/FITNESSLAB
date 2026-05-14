@@ -207,7 +207,7 @@ export default function Hoy({
           {todayLogs.length === 0 && (
             <div className="border border-dashed border-[var(--rule)] py-10 px-5 text-center">
               <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-                NO SPECIMENS LOGGED
+                SIN REGISTROS
               </div>
               <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--fg-dim)] mt-2">
                 Escanea tu primera comida del día

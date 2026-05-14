@@ -77,14 +77,14 @@ export default function Historial({ userId, profile }: Props) {
       <section className="mt-6">
         {loading && (
           <div className="px-5 font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-            LOADING ARCHIVE...
+            CARGANDO...
           </div>
         )}
 
         {!loading && days.length === 0 && (
           <div className="mx-5 border border-dashed border-[var(--rule)] py-10 px-5 text-center">
             <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-              NO ARCHIVED DAYS
+              SIN DÍAS ARCHIVADOS
             </div>
             <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--fg-dim)] mt-2">
               Tu primer día se archivará al cambiar la fecha
