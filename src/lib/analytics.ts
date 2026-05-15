@@ -7,7 +7,7 @@ if (typeof window !== "undefined") {
   if (key && !initialized) {
     posthog.init(key, {
       api_host:
-        process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com",
+        process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
       capture_pageview: false, // we handle pageviews manually for App Router
       capture_pageleave: true,
       persistence: "localStorage",
