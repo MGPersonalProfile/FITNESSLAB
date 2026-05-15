@@ -8,6 +8,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import type { FoodLog, Profile, SavedMeal } from "@/lib/types";
 import { todayMadrid } from "@/lib/dates";
+import { identify, reset, track } from "@/lib/analytics";
 
 import BottomNav, { type Tab } from "@/components/BottomNav";
 import Hoy from "@/components/sections/Hoy";
@@ -105,8 +106,11 @@ export default function Home() {
   }, [userId, loadProfile, loadToday, loadSaved, loadStreak]);
 
   useEffect(() => {
-    if (userId) void refreshAll();
-  }, [userId, refreshAll]);
+    if (!userId) return;
+    void refreshAll();
+    identify(userId, { email: session?.user.email ?? undefined });
+    track("app_opened");
+  }, [userId, refreshAll, session?.user.email]);
 
   // ===== Actions =====
   const handleDeleteLog = async (id: string) => {
@@ -135,6 +139,10 @@ export default function Home() {
       log_date: todayMadrid(),
     });
     await supabase.rpc("use_saved_meal", { meal_id: meal.id });
+    track("saved_meal_added_to_today", {
+      times_used: meal.times_used + 1,
+      meal_type: meal.meal_type,
+    });
     await Promise.all([userId ? loadToday(userId) : null, userId ? loadSaved(userId) : null]);
     setTab("hoy");
   };
@@ -156,6 +164,8 @@ export default function Home() {
   };
 
   const handleSignOut = async () => {
+    track("signed_out");
+    reset();
     await supabase.auth.signOut();
     router.replace("/login");
   };
@@ -231,7 +241,13 @@ export default function Home() {
         </motion.div>
       </AnimatePresence>
 
-      <BottomNav active={tab} onChange={setTab} />
+      <BottomNav
+        active={tab}
+        onChange={(t) => {
+          if (t !== tab) track("tab_switched", { from: tab, to: t });
+          setTab(t);
+        }}
+      />
 
       {/* Modals */}
       <ScanModal

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { Profile, WeightLog } from "@/lib/types";
 import { formatRelativeDay, todayMadrid } from "@/lib/dates";
+import { track } from "@/lib/analytics";
 
 type Props = {
   userId: string;
@@ -66,6 +67,7 @@ export default function Perfil({
       target_carbs: targets.carbs,
       target_fat: targets.fat,
     });
+    track("targets_updated", targets);
     setEditing(false);
     setSaving(false);
   };
@@ -82,6 +84,7 @@ export default function Perfil({
     if (!error && data) {
       setWeightLogs((prev) => [data as WeightLog, ...prev]);
       await onProfileUpdate({ weight_kg: w });
+      track("weight_logged", { weight_kg: w, total_entries: weightLogs.length + 1 });
       setNewWeight("");
     }
     setWeightSaving(false);

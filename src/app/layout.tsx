@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Martian_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import PostHogPageView from "@/components/PostHogPageView";
 import "./globals.css";
 
 const anton = Anton({
@@ -49,7 +52,12 @@ export default function RootLayout({
       lang="es"
       className={`${anton.variable} ${martianMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col overscroll-none">{children}</body>
+      <body className="min-h-full flex flex-col overscroll-none">
+        <PostHogPageView />
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }

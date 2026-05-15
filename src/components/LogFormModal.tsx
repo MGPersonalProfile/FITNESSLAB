@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { todayMadrid } from "@/lib/dates";
+import { track } from "@/lib/analytics";
 import type { FoodLog, MealType } from "@/lib/types";
 import MealTypePicker from "@/components/MealTypePicker";
 
@@ -115,6 +116,7 @@ export default function LogFormModal({
         setSaving(false);
         return;
       }
+      track("log_edited", { meal_type: payload.meal_type });
     } else {
       const { error: e } = await supabase.from("food_logs").insert({
         ...payload,
@@ -127,6 +129,10 @@ export default function LogFormModal({
         setSaving(false);
         return;
       }
+      track("manual_log_added", {
+        meal_type: payload.meal_type,
+        calories: payload.calories,
+      });
     }
 
     await onDone();
@@ -147,6 +153,7 @@ export default function LogFormModal({
       setDeleting(false);
       return;
     }
+    track("log_deleted", { meal_type: initial.meal_type });
     await onDone();
     setDeleting(false);
     onClose();

@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { processImage } from "@/lib/image";
 import { todayMadrid } from "@/lib/dates";
+import { track } from "@/lib/analytics";
 import type { AnalysisResult, MealType } from "@/lib/types";
-import { MEAL_TYPES } from "@/lib/types";
 import MealTypePicker from "@/components/MealTypePicker";
 
 type Phase = "capture" | "analyzing" | "result" | "saved";
@@ -38,7 +38,6 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [edited, setEdited] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedLogId, setSavedLogId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -48,7 +47,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       setDraft(null);
       setEdited(false);
       setError(null);
-      setSavedLogId(null);
+      track("scan_started");
       // Auto-trigger camera shortly after open
       setTimeout(() => fileRef.current?.click(), 100);
     }
@@ -60,6 +59,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
     setError(null);
     setPhase("analyzing");
 
+    const t0 = performance.now();
     try {
       const { base64, blob } = await processImage(file);
       setPreview(base64);
@@ -74,6 +74,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       if (!res.ok) throw new Error("AI failed");
 
       const data: AnalysisResult = await res.json();
+      const duration_ms = Math.round(performance.now() - t0);
       setDraft({
         food_name: data.nombre,
         calories: data.calorias,
@@ -85,9 +86,17 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
         meal_type: data.tipo_comida,
         notes: "",
       });
+      track("scan_analyzed", {
+        duration_ms,
+        meal_type: data.tipo_comida,
+        calories: data.calorias,
+      });
       setPhase("result");
     } catch (err) {
       console.error(err);
+      track("scan_analyze_failed", {
+        duration_ms: Math.round(performance.now() - t0),
+      });
       setError("Análisis fallido. Reintenta o usa el log manual.");
       setPhase("capture");
     }
@@ -116,7 +125,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       else console.warn("photo upload skipped:", upErr.message);
     }
 
-    const { data, error: insErr } = await supabase
+    const { error: insErr } = await supabase
       .from("food_logs")
       .insert({
         user_id: userId,
@@ -132,9 +141,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
         image_url,
         is_ai_estimated: !edited,
         log_date: todayMadrid(),
-      })
-      .select("id")
-      .single();
+      });
 
     if (insErr) {
       console.error(insErr);
@@ -142,7 +149,12 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       return;
     }
 
-    setSavedLogId((data as { id: string }).id);
+    track("scan_confirmed", {
+      edited,
+      meal_type: draft.meal_type,
+      calories: draft.calories,
+      photo_uploaded: !!image_url,
+    });
     setPhase("saved");
     await onDone();
   };
@@ -160,6 +172,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       sugar: draft.sugar,
       meal_type: draft.meal_type,
     });
+    track("saved_as_frequent", { source: "scan", meal_type: draft.meal_type });
     onClose();
   };
 
