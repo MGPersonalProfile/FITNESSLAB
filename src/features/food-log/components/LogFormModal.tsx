@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
 import { todayMadrid } from "@/shared/lib/dates";
@@ -56,30 +56,35 @@ export default function LogFormModal({
   onClose,
   onDone,
 }: Props) {
+  const formFromProps = (): Form =>
+    mode === "edit" && initial
+      ? {
+          food_name: initial.food_name,
+          calories: String(initial.calories),
+          protein: String(initial.protein),
+          fat: String(initial.fat),
+          carbs: String(initial.carbs),
+          fiber: String(initial.fiber),
+          sugar: String(initial.sugar),
+          meal_type: initial.meal_type ?? "Almuerzo",
+          notes: initial.notes ?? "",
+        }
+      : blank;
+
   const [form, setForm] = useState<Form>(blank);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    setError(null);
-    if (mode === "edit" && initial) {
-      setForm({
-        food_name: initial.food_name,
-        calories: String(initial.calories),
-        protein: String(initial.protein),
-        fat: String(initial.fat),
-        carbs: String(initial.carbs),
-        fiber: String(initial.fiber),
-        sugar: String(initial.sugar),
-        meal_type: initial.meal_type ?? "Almuerzo",
-        notes: initial.notes ?? "",
-      });
-    } else {
-      setForm(blank);
+  // Populate the form when the modal opens — adjusting state during render.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setError(null);
+      setForm(formFromProps());
     }
-  }, [open, mode, initial]);
+  }
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((s) => ({ ...s, [k]: v }));

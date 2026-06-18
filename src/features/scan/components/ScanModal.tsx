@@ -41,18 +41,26 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
   const [edited, setEdited] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Reset state on open — adjusting state during render (not in an effect).
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) {
       reset();
       setPhase("capture");
       setDraft(null);
       setEdited(false);
       setSaveError(null);
-      track("scan_started");
-      // Auto-trigger camera shortly after open
-      setTimeout(() => fileRef.current?.click(), 100);
     }
-  }, [open, reset]);
+  }
+
+  // Side-effects only (no setState): analytics + auto-open the camera.
+  useEffect(() => {
+    if (!open) return;
+    track("scan_started");
+    const t = setTimeout(() => fileRef.current?.click(), 100);
+    return () => clearTimeout(t);
+  }, [open]);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

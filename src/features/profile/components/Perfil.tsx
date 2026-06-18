@@ -21,27 +21,28 @@ export default function Perfil({
   onProfileUpdate,
   onSignOut,
 }: Props) {
-  const [editing, setEditing] = useState(false);
-  const [targets, setTargets] = useState({
+  const targetsFromProfile = () => ({
     cal: profile?.target_calories ?? 2000,
     prot: profile?.target_protein ?? 150,
     carbs: profile?.target_carbs ?? 200,
     fat: profile?.target_fat ?? 65,
   });
+
+  const [editing, setEditing] = useState(false);
+  const [targets, setTargets] = useState(targetsFromProfile);
   const [saving, setSaving] = useState(false);
 
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
   const [newWeight, setNewWeight] = useState<string>("");
   const [weightSaving, setWeightSaving] = useState(false);
 
-  useEffect(() => {
-    setTargets({
-      cal: profile?.target_calories ?? 2000,
-      prot: profile?.target_protein ?? 150,
-      carbs: profile?.target_carbs ?? 200,
-      fat: profile?.target_fat ?? 65,
-    });
-  }, [profile]);
+  // Re-sync targets when the profile prop changes — adjusting state during
+  // render (React-endorsed) instead of an effect, unless the user is editing.
+  const [prevProfile, setPrevProfile] = useState(profile);
+  if (profile !== prevProfile) {
+    setPrevProfile(profile);
+    if (!editing) setTargets(targetsFromProfile());
+  }
 
   useEffect(() => {
     let mounted = true;

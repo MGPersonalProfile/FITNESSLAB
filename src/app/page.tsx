@@ -9,6 +9,7 @@ import { supabase } from "@/shared/lib/supabaseClient";
 import type { FoodLog, Profile, SavedMeal } from "@/shared/types";
 import { todayMadrid } from "@/shared/lib/dates";
 import { identify, reset, track } from "@/shared/lib/analytics";
+import { fetchDashboard, fetchSaved, fetchStreak, fetchToday } from "@/features/food-log/data";
 
 import BottomNav, { type Tab } from "@/shared/components/BottomNav";
 import Hoy from "@/features/food-log/components/Hoy";
@@ -62,58 +63,35 @@ export default function Home() {
   // ===== Data loaders =====
   const userId = session?.user.id ?? null;
 
-  const loadProfile = useCallback(async (uid: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", uid)
-      .single();
-    if (data) setProfile(data as Profile);
-  }, []);
+  // Thin state-setting wrappers over the pure fetchers in data.ts. Used by
+  // event handlers (setState there is fine) and by the mount effect via .then.
+  const loadToday = useCallback(
+    (uid: string) => fetchToday(uid).then(setTodayLogs),
+    [],
+  );
+  const loadSaved = useCallback(
+    (uid: string) => fetchSaved(uid).then(setSavedMeals),
+    [],
+  );
+  const loadStreak = useCallback(
+    (uid: string) => fetchStreak(uid).then(setStreak),
+    [],
+  );
 
-  const loadToday = useCallback(async (uid: string) => {
-    const today = todayMadrid();
-    const { data } = await supabase
-      .from("food_logs")
-      .select("*")
-      .eq("user_id", uid)
-      .eq("log_date", today)
-      .order("created_at", { ascending: true });
-    setTodayLogs((data as FoodLog[]) ?? []);
-  }, []);
-
-  const loadSaved = useCallback(async (uid: string) => {
-    const { data } = await supabase
-      .from("saved_meals")
-      .select("*")
-      .eq("user_id", uid)
-      .order("times_used", { ascending: false })
-      .order("last_used_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false });
-    setSavedMeals((data as SavedMeal[]) ?? []);
-  }, []);
-
-  const loadStreak = useCallback(async (uid: string) => {
-    const { data } = await supabase.rpc("get_user_streak", { user_uuid: uid });
-    if (typeof data === "number") setStreak(data);
-  }, []);
-
-  const refreshAll = useCallback(async () => {
-    if (!userId) return;
-    await Promise.all([
-      loadProfile(userId),
-      loadToday(userId),
-      loadSaved(userId),
-      loadStreak(userId),
-    ]);
-  }, [userId, loadProfile, loadToday, loadSaved, loadStreak]);
+  const email = session?.user.email ?? null;
 
   useEffect(() => {
     if (!userId) return;
-    void refreshAll();
-    identify(userId, { email: session?.user.email ?? undefined });
+    identify(userId, { email: email ?? undefined });
     track("app_opened");
-  }, [userId, refreshAll, session?.user.email]);
+    // setState only inside the resolved callback (not synchronously in the effect).
+    fetchDashboard(userId).then((d) => {
+      setProfile(d.profile);
+      setTodayLogs(d.today);
+      setSavedMeals(d.saved);
+      setStreak(d.streak);
+    });
+  }, [userId, email]);
 
   // ===== Actions =====
   const handleDeleteLog = async (id: string) => {

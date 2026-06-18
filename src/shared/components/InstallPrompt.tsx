@@ -74,17 +74,13 @@ export default function InstallPrompt() {
     };
   }, []);
 
-  // Show banner after a small delay once prompt is captured
+  // Reveal the banner once we have a captured prompt (delayed) or an iOS hint.
+  // setState only inside the timeout callback, never synchronously here.
   useEffect(() => {
-    if (!deferredPrompt) return;
-    const t = setTimeout(() => setVisible(true), 1500);
+    if (!deferredPrompt && !showIOSHint) return;
+    const t = setTimeout(() => setVisible(true), showIOSHint ? 0 : 1500);
     return () => clearTimeout(t);
-  }, [deferredPrompt]);
-
-  // Show iOS hint with delay
-  useEffect(() => {
-    if (showIOSHint) setVisible(true);
-  }, [showIOSHint]);
+  }, [deferredPrompt, showIOSHint]);
 
   const dismiss = useCallback(() => {
     localStorage.setItem(DISMISS_KEY, Date.now().toString());
