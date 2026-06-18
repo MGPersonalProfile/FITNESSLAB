@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { posthog } from "@/lib/analytics";
+import { posthog } from "@/shared/lib/analytics";
 
 function Tracker() {
   const pathname = usePathname();

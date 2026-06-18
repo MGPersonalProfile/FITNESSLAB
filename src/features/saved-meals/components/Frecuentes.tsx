@@ -1,6 +1,6 @@
 "use client";
 
-import type { SavedMeal } from "@/lib/types";
+import type { SavedMeal } from "@/shared/types";
 
 type Props = {
   savedMeals: SavedMeal[];

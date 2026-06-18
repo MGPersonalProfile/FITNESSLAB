@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Anton, Martian_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import PostHogPageView from "@/components/PostHogPageView";
-import InstallPrompt from "@/components/InstallPrompt";
+import PostHogPageView from "@/shared/components/PostHogPageView";
+import InstallPrompt from "@/shared/components/InstallPrompt";
 import "./globals.css";
 
 const anton = Anton({

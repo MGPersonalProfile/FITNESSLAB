@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
-import { processImage } from "@/lib/image";
-import { todayMadrid } from "@/lib/dates";
-import { track } from "@/lib/analytics";
-import type { AnalysisResult, MealType } from "@/lib/types";
-import MealTypePicker from "@/components/MealTypePicker";
+import { supabase } from "@/shared/lib/supabaseClient";
+import { todayMadrid } from "@/shared/lib/dates";
+import { track } from "@/shared/lib/analytics";
+import type { MealType, PlateAnalysis } from "@/shared/types";
+import MealTypePicker from "@/shared/components/MealTypePicker";
+import { useDishAnalysis } from "@/features/scan/hooks/useDishAnalysis";
+import { evaluatePlate } from "@/features/plate/lib/plate";
+import PlateBalanceCard from "@/features/plate/components/PlateBalanceCard";
 
 type Phase = "capture" | "analyzing" | "result" | "saved";
 
@@ -21,6 +23,7 @@ type Draft = {
   sugar: number;
   meal_type: MealType;
   notes: string;
+  plato: PlateAnalysis;
 };
 
 type Props = {
@@ -32,49 +35,37 @@ type Props = {
 
 export default function ScanModal({ open, userId, onClose, onDone }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const { preview, imageBlob, error: analyzeError, analyze, reset } = useDishAnalysis();
   const [phase, setPhase] = useState<Phase>("capture");
-  const [preview, setPreview] = useState<string | null>(null);
-  const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [edited, setEdited] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
+      reset();
       setPhase("capture");
-      setPreview(null);
-      setImageBlob(null);
       setDraft(null);
       setEdited(false);
-      setError(null);
+      setSaveError(null);
       track("scan_started");
       // Auto-trigger camera shortly after open
       setTimeout(() => fileRef.current?.click(), 100);
     }
-  }, [open]);
+  }, [open, reset]);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setError(null);
+    setSaveError(null);
     setPhase("analyzing");
 
     const t0 = performance.now();
-    try {
-      const { base64, blob } = await processImage(file);
-      setPreview(base64);
-      setImageBlob(blob);
+    const out = await analyze(file);
+    const duration_ms = Math.round(performance.now() - t0);
 
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64 }),
-      });
-
-      if (!res.ok) throw new Error("AI failed");
-
-      const data: AnalysisResult = await res.json();
-      const duration_ms = Math.round(performance.now() - t0);
+    if (out) {
+      const data = out.data;
       setDraft({
         food_name: data.nombre,
         calories: data.calorias,
@@ -85,6 +76,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
         sugar: data.azucar,
         meal_type: data.tipo_comida,
         notes: "",
+        plato: data.plato,
       });
       track("scan_analyzed", {
         duration_ms,
@@ -92,12 +84,8 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
         calories: data.calorias,
       });
       setPhase("result");
-    } catch (err) {
-      console.error(err);
-      track("scan_analyze_failed", {
-        duration_ms: Math.round(performance.now() - t0),
-      });
-      setError("Análisis fallido. Reintenta o usa el log manual.");
+    } else {
+      track("scan_analyze_failed", { duration_ms });
       setPhase("capture");
     }
     if (fileRef.current) fileRef.current.value = "";
@@ -125,6 +113,8 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       else console.warn("photo upload skipped:", upErr.message);
     }
 
+    const plate = evaluatePlate(draft.plato);
+
     const { error: insErr } = await supabase
       .from("food_logs")
       .insert({
@@ -141,11 +131,13 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
         image_url,
         is_ai_estimated: !edited,
         log_date: todayMadrid(),
+        plate_score: plate.score,
+        plate_eval: plate,
       });
 
     if (insErr) {
       console.error(insErr);
-      setError("No se pudo guardar el registro.");
+      setSaveError("No se pudo guardar el registro.");
       return;
     }
 
@@ -154,6 +146,8 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
       meal_type: draft.meal_type,
       calories: draft.calories,
       photo_uploaded: !!image_url,
+      plate_score: plate.score,
+      plate_verdict: plate.veredicto,
     });
     setPhase("saved");
     await onDone();
@@ -244,9 +238,9 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                   CAPTURE A PHOTO
                 </div>
               </div>
-              {error && (
+              {analyzeError && (
                 <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--accent)] text-center">
-                  {error}
+                  {analyzeError}
                 </div>
               )}
               <button
@@ -352,15 +346,23 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                 </div>
               </div>
 
+              {/* Plate balance (Harvard) */}
+              <div>
+                <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+                  BALANCE // PLATO
+                </div>
+                <PlateBalanceCard data={evaluatePlate(draft.plato)} />
+              </div>
+
               {/* Notes (optional) */}
               <NotesField
                 value={draft.notes}
                 onChange={(v) => updateDraft("notes", v)}
               />
 
-              {error && (
+              {saveError && (
                 <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--accent)]">
-                  {error}
+                  {saveError}
                 </div>
               )}
 

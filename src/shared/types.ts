@@ -30,6 +30,27 @@ export type FoodLog = {
   image_url: string | null;
   is_ai_estimated: boolean;
   notes: string | null;
+  plate_score: number | null;
+  plate_eval: PlateEval | null;
+};
+
+// ===== Plate validation (Harvard Healthy Eating Plate) =====
+export type PlateVerdict = "Balanceado" | "Mejorable" | "Desbalanceado";
+
+// Raw visual proportions estimated by the AI vision model.
+export type PlateAnalysis = {
+  verduras_frutas_pct: number;
+  cereales_pct: number;
+  proteina_pct: number;
+  otros_pct: number;
+  detectado: string[];
+  recomendacion: string;
+};
+
+// Stored evaluation: AI proportions + deterministic score/verdict.
+export type PlateEval = PlateAnalysis & {
+  score: number;
+  veredicto: PlateVerdict;
 };
 
 export type SavedMeal = {
@@ -78,6 +99,7 @@ export type AnalysisResult = {
   fibra: number;
   azucar: number;
   tipo_comida: MealType;
+  plato: PlateAnalysis;
 };
 
 export type Macros = {

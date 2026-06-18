@@ -5,18 +5,19 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Session } from "@supabase/supabase-js";
 
-import { supabase } from "@/lib/supabaseClient";
-import type { FoodLog, Profile, SavedMeal } from "@/lib/types";
-import { todayMadrid } from "@/lib/dates";
-import { identify, reset, track } from "@/lib/analytics";
+import { supabase } from "@/shared/lib/supabaseClient";
+import type { FoodLog, Profile, SavedMeal } from "@/shared/types";
+import { todayMadrid } from "@/shared/lib/dates";
+import { identify, reset, track } from "@/shared/lib/analytics";
 
-import BottomNav, { type Tab } from "@/components/BottomNav";
-import Hoy from "@/components/sections/Hoy";
-import Historial from "@/components/sections/Historial";
-import Frecuentes from "@/components/sections/Frecuentes";
-import Perfil from "@/components/sections/Perfil";
-import ScanModal from "@/components/ScanModal";
-import LogFormModal from "@/components/LogFormModal";
+import BottomNav, { type Tab } from "@/shared/components/BottomNav";
+import Hoy from "@/features/food-log/components/Hoy";
+import Historial from "@/features/food-log/components/Historial";
+import Frecuentes from "@/features/saved-meals/components/Frecuentes";
+import Perfil from "@/features/profile/components/Perfil";
+import ScanModal from "@/features/scan/components/ScanModal";
+import LogFormModal from "@/features/food-log/components/LogFormModal";
+import PlateValidationModal from "@/features/plate/components/PlateValidationModal";
 
 export default function Home() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function Home() {
 
   const [scanOpen, setScanOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  const [plateOpen, setPlateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<FoodLog | null>(null);
 
   // ===== Auth bootstrap =====
@@ -215,6 +217,7 @@ export default function Home() {
               streak={streak}
               onScan={() => setScanOpen(true)}
               onManualLog={() => setManualOpen(true)}
+              onValidatePlate={() => setPlateOpen(true)}
               onEditLog={(l) => setEditTarget(l)}
               onDeleteLog={handleDeleteLog}
             />
@@ -276,6 +279,10 @@ export default function Home() {
         onDone={async () => {
           if (userId) await loadToday(userId);
         }}
+      />
+      <PlateValidationModal
+        open={plateOpen}
+        onClose={() => setPlateOpen(false)}
       />
     </main>
   );

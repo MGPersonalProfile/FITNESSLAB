@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { FoodLog, MealType, Profile } from "@/lib/types";
-import { MEAL_TYPES, sumMacros } from "@/lib/types";
-import { formatTime, todayMadrid } from "@/lib/dates";
-import MacroRing from "@/components/MacroRing";
+import type { FoodLog, MealType, Profile } from "@/shared/types";
+import { MEAL_TYPES, sumMacros } from "@/shared/types";
+import { formatTime, todayMadrid } from "@/shared/lib/dates";
+import MacroRing from "@/features/food-log/components/MacroRing";
 
 type Props = {
   profile: Profile | null;
@@ -12,6 +12,7 @@ type Props = {
   streak: number;
   onScan: () => void;
   onManualLog: () => void;
+  onValidatePlate: () => void;
   onEditLog: (log: FoodLog) => void;
   onDeleteLog: (id: string) => void;
 };
@@ -21,12 +22,20 @@ const SECTION_FADE = {
   animate: { opacity: 1, y: 0 },
 };
 
+// Mirrors the verdict thresholds in features/plate/lib/plate.ts.
+function plateScoreColor(score: number): string {
+  if (score >= 80) return "var(--success)";
+  if (score >= 50) return "var(--warning)";
+  return "var(--accent)";
+}
+
 export default function Hoy({
   profile,
   todayLogs,
   streak,
   onScan,
   onManualLog,
+  onValidatePlate,
   onEditLog,
   onDeleteLog,
 }: Props) {
@@ -162,13 +171,21 @@ export default function Hoy({
           />
         </button>
 
-        {/* Secondary: manual log */}
-        <button
-          onClick={onManualLog}
-          className="w-full mt-2 border border-[var(--rule)] hover:border-[var(--fg-faint)] bg-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] py-3 flex items-center justify-center gap-3 transition-colors active:scale-[0.99]"
-        >
-          <span className="font-mono text-[10px] tracking-[0.3em]">+ AÑADIR MANUAL</span>
-        </button>
+        {/* Secondary actions: manual log + standalone plate validation */}
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button
+            onClick={onManualLog}
+            className="border border-[var(--rule)] hover:border-[var(--fg-faint)] bg-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] py-3 flex items-center justify-center gap-3 transition-colors active:scale-[0.99]"
+          >
+            <span className="font-mono text-[10px] tracking-[0.3em]">+ MANUAL</span>
+          </button>
+          <button
+            onClick={onValidatePlate}
+            className="border border-[var(--rule)] hover:border-[var(--fg-faint)] bg-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] py-3 flex items-center justify-center gap-3 transition-colors active:scale-[0.99]"
+          >
+            <span className="font-mono text-[10px] tracking-[0.3em]">◐ VALIDAR PLATO</span>
+          </button>
+        </div>
       </motion.section>
 
       {/* LOGS BY MEAL */}
@@ -297,11 +314,19 @@ function LogRow({
               </span>
             )}
           </div>
-          <div className="flex gap-3 mt-0.5 font-mono text-[9px] text-[var(--fg-dim)] tracking-[0.1em]">
+          <div className="flex gap-3 mt-0.5 font-mono text-[9px] text-[var(--fg-dim)] tracking-[0.1em] items-center">
             <span>{log.calories}<span className="text-[var(--fg-faint)]">kcal</span></span>
             <span>{log.protein}<span className="text-[var(--fg-faint)]">P</span></span>
             <span>{log.carbs}<span className="text-[var(--fg-faint)]">C</span></span>
             <span>{log.fat}<span className="text-[var(--fg-faint)]">F</span></span>
+            {log.plate_score != null && (
+              <span
+                className="ml-auto px-1.5 py-0.5 border tracking-[0.15em]"
+                style={{ color: plateScoreColor(log.plate_score), borderColor: plateScoreColor(log.plate_score) }}
+              >
+                ◐{log.plate_score}
+              </span>
+            )}
           </div>
         </div>
       </button>

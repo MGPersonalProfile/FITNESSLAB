@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
-import type { DailyTotal, FoodLog, Profile } from "@/lib/types";
-import { formatRelativeDay, formatTime, todayMadrid } from "@/lib/dates";
+import { supabase } from "@/shared/lib/supabaseClient";
+import type { DailyTotal, FoodLog, Profile } from "@/shared/types";
+import { formatRelativeDay, formatTime, todayMadrid } from "@/shared/lib/dates";
 
 type Props = {
   userId: string;
   profile: Profile | null;
 };
+
+// Mirrors the verdict thresholds in features/plate/lib/plate.ts.
+function plateScoreColor(score: number): string {
+  if (score >= 80) return "var(--success)";
+  if (score >= 50) return "var(--warning)";
+  return "var(--accent)";
+}
 
 export default function Historial({ userId, profile }: Props) {
   const [days, setDays] = useState<DailyTotal[]>([]);
@@ -167,6 +174,17 @@ export default function Historial({ userId, profile }: Props) {
                             <span className="font-mono text-[10px] text-[var(--fg)] flex-1 truncate">
                               {log.food_name}
                             </span>
+                            {log.plate_score != null && (
+                              <span
+                                className="font-mono text-[8px] tracking-[0.15em] px-1 py-0.5 border shrink-0"
+                                style={{
+                                  color: plateScoreColor(log.plate_score),
+                                  borderColor: plateScoreColor(log.plate_score),
+                                }}
+                              >
+                                ◐{log.plate_score}
+                              </span>
+                            )}
                             <span className="font-mono text-[9px] text-[var(--fg-dim)] tracking-[0.1em]">
                               {log.calories}
                               <span className="text-[var(--fg-faint)]"> kcal</span>

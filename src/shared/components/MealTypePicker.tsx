@@ -1,6 +1,6 @@
 "use client";
 
-import { MEAL_TYPES, type MealType } from "@/lib/types";
+import { MEAL_TYPES, type MealType } from "@/shared/types";
 
 type Props = {
   value: MealType | null;

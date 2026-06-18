@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import type { Profile, WeightLog } from "@/lib/types";
-import { formatRelativeDay, todayMadrid } from "@/lib/dates";
-import { track } from "@/lib/analytics";
+import { supabase } from "@/shared/lib/supabaseClient";
+import type { Profile, WeightLog } from "@/shared/types";
+import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
+import { track } from "@/shared/lib/analytics";
 
 type Props = {
   userId: string;

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
-import { todayMadrid } from "@/lib/dates";
-import { track } from "@/lib/analytics";
-import type { FoodLog, MealType } from "@/lib/types";
-import MealTypePicker from "@/components/MealTypePicker";
+import { supabase } from "@/shared/lib/supabaseClient";
+import { todayMadrid } from "@/shared/lib/dates";
+import { track } from "@/shared/lib/analytics";
+import type { FoodLog, MealType } from "@/shared/types";
+import MealTypePicker from "@/shared/components/MealTypePicker";
 
 type Mode = "manual" | "edit";
 

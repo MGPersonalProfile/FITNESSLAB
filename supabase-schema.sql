@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS food_logs (
   notes text
 );
 
+-- Plate validation (Harvard Healthy Eating Plate) — added 2026-06-18.
+-- plate_score: 0-100 balance score; null = manual log / no plate analyzed.
+-- plate_eval: full breakdown { verduras_frutas_pct, cereales_pct, proteina_pct,
+--             otros_pct, veredicto, recomendacion, detectado }.
+ALTER TABLE food_logs ADD COLUMN IF NOT EXISTS plate_score smallint;
+ALTER TABLE food_logs ADD COLUMN IF NOT EXISTS plate_eval  jsonb;
+
 ALTER TABLE food_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can view their own food logs" ON food_logs;
