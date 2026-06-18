@@ -424,6 +424,79 @@ RETURNS TABLE (user_id uuid, display_name text, streak integer, avg_plate intege
 $$ LANGUAGE sql SECURITY DEFINER;
 
 -- ============================================
+-- CHALLENGES — friendly weekly challenges (added 2026-06-18)
+-- metric: log_days (days with >=1 log) | plate_days (days avg plate >=80)
+-- ============================================
+CREATE TABLE IF NOT EXISTS challenges (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  creator uuid REFERENCES auth.users NOT NULL,
+  title text NOT NULL,
+  metric text NOT NULL CHECK (metric IN ('log_days', 'plate_days')),
+  target integer NOT NULL DEFAULT 7,
+  starts_on date NOT NULL DEFAULT (timezone('Europe/Madrid', now()))::date,
+  ends_on date NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS challenge_participants (
+  challenge_id uuid REFERENCES challenges ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  PRIMARY KEY (challenge_id, user_id)
+);
+
+ALTER TABLE challenges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE challenge_participants ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated can view challenges" ON challenges;
+CREATE POLICY "Authenticated can view challenges" ON challenges
+  FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Create own challenges" ON challenges;
+CREATE POLICY "Create own challenges" ON challenges
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = creator);
+DROP POLICY IF EXISTS "Delete own challenges" ON challenges;
+CREATE POLICY "Delete own challenges" ON challenges
+  FOR DELETE TO authenticated USING (auth.uid() = creator);
+
+DROP POLICY IF EXISTS "View challenge participants" ON challenge_participants;
+CREATE POLICY "View challenge participants" ON challenge_participants
+  FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Join challenges" ON challenge_participants;
+CREATE POLICY "Join challenges" ON challenge_participants
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Leave challenges" ON challenge_participants;
+CREATE POLICY "Leave challenges" ON challenge_participants
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
+-- Per-participant progress for a challenge (value vs target).
+CREATE OR REPLACE FUNCTION public.get_challenge_progress(cid uuid)
+RETURNS TABLE (user_id uuid, display_name text, value integer) AS $$
+  WITH ch AS (SELECT * FROM challenges WHERE id = cid)
+  SELECT
+    cp.user_id,
+    p.display_name,
+    CASE (SELECT metric FROM ch)
+      WHEN 'log_days' THEN (
+        SELECT COUNT(DISTINCT fl.log_date)::integer FROM food_logs fl
+        WHERE fl.user_id = cp.user_id
+          AND fl.log_date BETWEEN (SELECT starts_on FROM ch) AND (SELECT ends_on FROM ch)
+      )
+      WHEN 'plate_days' THEN (
+        SELECT COUNT(*)::integer FROM (
+          SELECT fl.log_date FROM food_logs fl
+          WHERE fl.user_id = cp.user_id AND fl.plate_score IS NOT NULL
+            AND fl.log_date BETWEEN (SELECT starts_on FROM ch) AND (SELECT ends_on FROM ch)
+          GROUP BY fl.log_date HAVING AVG(fl.plate_score) >= 80
+        ) d
+      )
+      ELSE 0
+    END AS value
+  FROM challenge_participants cp
+  JOIN profiles p ON p.id = cp.user_id
+  WHERE cp.challenge_id = cid;
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- ============================================
 -- INDEXES
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_food_logs_user_date    ON food_logs    (user_id, log_date DESC);

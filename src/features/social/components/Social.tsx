@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { track } from "@/shared/lib/analytics";
 import type { Friend, FriendRequest } from "@/shared/types";
 import Leaderboard from "@/features/social/components/Leaderboard";
+import Challenges from "@/features/social/components/Challenges";
 import {
   fetchFriends,
   fetchPendingRequests,
@@ -105,6 +106,9 @@ export default function Social({ userId }: { userId: string }) {
 
       {/* Leaderboard */}
       <Leaderboard userId={userId} />
+
+      {/* Challenges */}
+      <Challenges userId={userId} />
 
       {/* Pending requests */}
       {pending.length > 0 && (

@@ -117,6 +117,19 @@ export type FriendRequest = {
   avatar_url: string | null;
 };
 
+export type ChallengeMetric = "log_days" | "plate_days";
+export type Challenge = {
+  id: string;
+  creator: string;
+  title: string;
+  metric: ChallengeMetric;
+  target: number;
+  starts_on: string;
+  ends_on: string;
+  created_at: string;
+};
+export type ChallengeProgress = { user_id: string; display_name: string | null; value: number };
+
 export type Macros = {
   calories: number;
   protein: number;
