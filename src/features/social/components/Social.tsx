@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { track } from "@/shared/lib/analytics";
 import type { Friend, FriendRequest } from "@/shared/types";
+import Leaderboard from "@/features/social/components/Leaderboard";
 import {
   fetchFriends,
   fetchPendingRequests,
@@ -101,6 +102,9 @@ export default function Social({ userId }: { userId: string }) {
         </div>
         {msg && <div className="font-mono text-[10px] tracking-[0.15em] text-[var(--fg-dim)] mt-2">{msg}</div>}
       </section>
+
+      {/* Leaderboard */}
+      <Leaderboard userId={userId} />
 
       {/* Pending requests */}
       {pending.length > 0 && (

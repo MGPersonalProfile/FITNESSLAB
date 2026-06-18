@@ -400,6 +400,29 @@ RETURNS TABLE (id uuid, requester uuid, display_name text, avatar_url text) AS $
   WHERE f.addressee = auth.uid() AND f.status = 'pending';
 $$ LANGUAGE sql SECURITY DEFINER;
 
+-- Leaderboard across me + accepted friends: streak, 7-day avg plate, 7-day entries.
+CREATE OR REPLACE FUNCTION public.get_friends_leaderboard()
+RETURNS TABLE (user_id uuid, display_name text, streak integer, avg_plate integer, entries integer) AS $$
+  WITH circle AS (
+    SELECT auth.uid() AS uid
+    UNION
+    SELECT CASE WHEN f.requester = auth.uid() THEN f.addressee ELSE f.requester END
+    FROM friendships f
+    WHERE f.status = 'accepted' AND auth.uid() IN (f.requester, f.addressee)
+  )
+  SELECT
+    c.uid,
+    p.display_name,
+    public.get_user_streak(c.uid) AS streak,
+    COALESCE(ROUND(AVG(fl.plate_score) FILTER (WHERE fl.log_date >= current_date - 6)), 0)::integer AS avg_plate,
+    COUNT(fl.id) FILTER (WHERE fl.log_date >= current_date - 6)::integer AS entries
+  FROM circle c
+  JOIN profiles p ON p.id = c.uid
+  LEFT JOIN food_logs fl ON fl.user_id = c.uid
+  GROUP BY c.uid, p.display_name
+  ORDER BY streak DESC, entries DESC;
+$$ LANGUAGE sql SECURITY DEFINER;
+
 -- ============================================
 -- INDEXES
 -- ============================================

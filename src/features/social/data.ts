@@ -1,6 +1,19 @@
 import { supabase } from "@/shared/lib/supabaseClient";
 import type { Friend, FriendRequest } from "@/shared/types";
 
+export type LeaderboardRow = {
+  user_id: string;
+  display_name: string | null;
+  streak: number;
+  avg_plate: number;
+  entries: number;
+};
+
+export async function fetchLeaderboard(): Promise<LeaderboardRow[]> {
+  const { data } = await supabase.rpc("get_friends_leaderboard");
+  return (data as LeaderboardRow[]) ?? [];
+}
+
 export async function fetchFriends(): Promise<Friend[]> {
   const { data } = await supabase.rpc("get_friends");
   return (data as Friend[]) ?? [];
