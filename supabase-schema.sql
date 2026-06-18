@@ -550,6 +550,25 @@ RETURNS TABLE (total_logs integer, log_days integer, streak integer, best_plate 
 $$ LANGUAGE sql SECURITY DEFINER;
 
 -- ============================================
+-- PUSH_SUBSCRIPTIONS — Web Push endpoints per device (added 2026-06-18)
+-- ============================================
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  endpoint text UNIQUE NOT NULL,
+  subscription jsonb NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Manage own push subscriptions" ON push_subscriptions;
+CREATE POLICY "Manage own push subscriptions" ON push_subscriptions
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions (user_id);
+
+-- ============================================
 -- INDEXES
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_food_logs_user_date    ON food_logs    (user_id, log_date DESC);

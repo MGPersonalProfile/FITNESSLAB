@@ -8,6 +8,7 @@ import type { Profile, WeightLog } from "@/shared/types";
 import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
 import AchievementsCard from "@/features/social/components/AchievementsCard";
+import NotificationsToggle from "@/features/notifications/NotificationsToggle";
 
 type Props = {
   userId: string;
@@ -321,6 +322,9 @@ export default function Perfil({
 
       {/* ACHIEVEMENTS */}
       <AchievementsCard userId={userId} />
+
+      {/* NOTIFICATIONS */}
+      <NotificationsToggle />
 
       {/* ACCOUNT */}
       <section className="px-5 mt-10">
