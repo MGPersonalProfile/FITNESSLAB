@@ -293,7 +293,7 @@ function MealBlock({
   onDeleteLog: (id: string) => void;
 }) {
   if (logs.length === 0) return null;
-  const t = sumMacros(logs);
+  const totals = sumMacros(logs);
   return (
     <div>
       <div className="flex items-baseline justify-between mb-2">
@@ -306,7 +306,7 @@ function MealBlock({
           </span>
         </div>
         <span className="font-mono text-[9px] tracking-[0.2em] text-[var(--fg-dim)]">
-          {t.calories} <span className="text-[var(--fg-faint)]">kcal</span>
+          {totals.calories} <span className="text-[var(--fg-faint)]">kcal</span>
         </span>
       </div>
       <div className="flex flex-col">
