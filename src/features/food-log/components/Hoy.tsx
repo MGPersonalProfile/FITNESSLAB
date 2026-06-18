@@ -6,6 +6,7 @@ import { MEAL_TYPES, sumMacros } from "@/shared/types";
 import { formatTime, todayMadrid } from "@/shared/lib/dates";
 import MacroRing from "@/features/food-log/components/MacroRing";
 import HydrationCard from "@/features/food-log/components/HydrationCard";
+import WorkoutCard from "@/features/workout/components/WorkoutCard";
 import { dailyInsights } from "@/features/food-log/lib/insights";
 
 type Props = {
@@ -221,9 +222,10 @@ export default function Hoy({
         </div>
       </motion.section>
 
-      {/* HYDRATION */}
-      <motion.section {...SECTION_FADE} transition={{ delay: 0.12 }} className="px-5">
+      {/* HYDRATION + WORKOUT */}
+      <motion.section {...SECTION_FADE} transition={{ delay: 0.12 }} className="px-5 flex flex-col gap-3">
         <HydrationCard userId={userId} />
+        <WorkoutCard userId={userId} />
       </motion.section>
 
       {/* LOGS BY MEAL */}

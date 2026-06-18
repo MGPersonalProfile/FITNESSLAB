@@ -6,7 +6,7 @@ export type LeaderboardRow = {
   display_name: string | null;
   streak: number;
   avg_plate: number;
-  entries: number;
+  workout_min: number;
 };
 
 export async function fetchLeaderboard(): Promise<LeaderboardRow[]> {

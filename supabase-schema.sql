@@ -189,6 +189,26 @@ CREATE POLICY "Users manage their own water logs" ON water_logs
 CREATE INDEX IF NOT EXISTS idx_water_logs_user_date ON water_logs (user_id, log_date DESC);
 
 -- ============================================
+-- WORKOUT_LOGS — minimal exercise tracking (added 2026-06-18)
+-- ============================================
+CREATE TABLE IF NOT EXISTS workout_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  kind text NOT NULL,
+  minutes integer NOT NULL,
+  log_date date DEFAULT (timezone('Europe/Madrid', now()))::date NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE workout_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users manage their own workouts" ON workout_logs;
+CREATE POLICY "Users manage their own workouts" ON workout_logs
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_workout_logs_user_date ON workout_logs (user_id, log_date DESC);
+
+-- ============================================
 -- WEIGHT_LOGS
 -- ============================================
 CREATE TABLE IF NOT EXISTS weight_logs (
@@ -400,9 +420,10 @@ RETURNS TABLE (id uuid, requester uuid, display_name text, avatar_url text) AS $
   WHERE f.addressee = auth.uid() AND f.status = 'pending';
 $$ LANGUAGE sql SECURITY DEFINER;
 
--- Leaderboard across me + accepted friends: streak, 7-day avg plate, 7-day entries.
+-- Leaderboard across me + accepted friends: streak, 7-day avg plate, 7-day gym minutes.
+DROP FUNCTION IF EXISTS public.get_friends_leaderboard();
 CREATE OR REPLACE FUNCTION public.get_friends_leaderboard()
-RETURNS TABLE (user_id uuid, display_name text, streak integer, avg_plate integer, entries integer) AS $$
+RETURNS TABLE (user_id uuid, display_name text, streak integer, avg_plate integer, workout_min integer) AS $$
   WITH circle AS (
     SELECT auth.uid() AS uid
     UNION
@@ -414,13 +435,17 @@ RETURNS TABLE (user_id uuid, display_name text, streak integer, avg_plate intege
     c.uid,
     p.display_name,
     public.get_user_streak(c.uid) AS streak,
-    COALESCE(ROUND(AVG(fl.plate_score) FILTER (WHERE fl.log_date >= current_date - 6)), 0)::integer AS avg_plate,
-    COUNT(fl.id) FILTER (WHERE fl.log_date >= current_date - 6)::integer AS entries
+    COALESCE((
+      SELECT ROUND(AVG(fl.plate_score))::integer FROM food_logs fl
+      WHERE fl.user_id = c.uid AND fl.plate_score IS NOT NULL AND fl.log_date >= current_date - 6
+    ), 0) AS avg_plate,
+    COALESCE((
+      SELECT SUM(w.minutes)::integer FROM workout_logs w
+      WHERE w.user_id = c.uid AND w.log_date >= current_date - 6
+    ), 0) AS workout_min
   FROM circle c
   JOIN profiles p ON p.id = c.uid
-  LEFT JOIN food_logs fl ON fl.user_id = c.uid
-  GROUP BY c.uid, p.display_name
-  ORDER BY streak DESC, entries DESC;
+  ORDER BY streak DESC, workout_min DESC;
 $$ LANGUAGE sql SECURITY DEFINER;
 
 -- ============================================
