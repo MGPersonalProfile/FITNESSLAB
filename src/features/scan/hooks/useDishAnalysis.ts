@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { processImage } from "@/shared/lib/image";
 import { authedFetch } from "@/shared/lib/authedFetch";
+import { t } from "@/shared/i18n";
 import type { AnalysisResult } from "@/shared/types";
 
 export type AnalysisStatus = "idle" | "analyzing" | "done" | "error";
@@ -34,7 +35,7 @@ export function useDishAnalysis() {
       });
       if (!res.ok) {
         // Surface server-provided messages (401 sesión, 429 cuota) when present.
-        let msg = "Análisis fallido. Reintenta o usa el log manual.";
+        let msg = t.scan.analyzeFailed;
         try {
           const body = await res.json();
           if (body?.error) msg = body.error;
@@ -52,7 +53,7 @@ export function useDishAnalysis() {
     } catch (err) {
       console.error(err);
       setStatus("error");
-      setError("Análisis fallido. Reintenta o usa el log manual.");
+      setError(t.scan.analyzeFailed);
       return null;
     }
   }, []);

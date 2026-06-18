@@ -32,20 +32,6 @@ const GOAL_DELTA: Record<Goal, number> = {
   gain: 0.15,
 };
 
-export const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
-  sedentary: "Sedentario",
-  light: "Ligero (1-2 d/sem)",
-  moderate: "Moderado (3-4 d/sem)",
-  active: "Activo (5-6 d/sem)",
-  very_active: "Muy activo (diario)",
-};
-
-export const GOAL_LABELS: Record<Goal, string> = {
-  lose: "Perder grasa",
-  maintain: "Mantener",
-  gain: "Ganar músculo",
-};
-
 // Macro split applied to the calorie target.
 const PROTEIN_G_PER_KG = 2;
 const FAT_CAL_RATIO = 0.25;

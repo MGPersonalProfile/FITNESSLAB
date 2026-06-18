@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/shared/lib/analytics";
+import { t } from "@/shared/i18n";
 import {
   BADGES,
   fetchAchievementStats,
@@ -35,7 +36,7 @@ export default function AchievementsCard({ userId }: { userId: string }) {
   return (
     <section className="px-5 mt-10">
       <div className="flex items-baseline justify-between mb-3">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">LOGROS</span>
+        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{t.achievements.title}</span>
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-dim)]">
           {count}/{BADGES.length}
         </span>
@@ -43,6 +44,7 @@ export default function AchievementsCard({ userId }: { userId: string }) {
       <div className="grid grid-cols-2 gap-px bg-[var(--rule)] border border-[var(--rule)]">
         {BADGES.map((b) => {
           const got = earned.has(b.key);
+          const meta = t.achievements.badges[b.key];
           return (
             <div key={b.key} className="bg-[var(--bg)] p-3">
               <div
@@ -51,10 +53,10 @@ export default function AchievementsCard({ userId }: { userId: string }) {
                 }`}
               >
                 {got ? "◆ " : "◇ "}
-                {b.label}
+                {meta.label}
               </div>
               <div className="font-mono text-[9px] tracking-[0.1em] text-[var(--fg-faint)] mt-0.5">
-                {b.desc}
+                {meta.desc}
               </div>
             </div>
           );

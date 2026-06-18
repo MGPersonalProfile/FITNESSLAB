@@ -2,6 +2,7 @@
 
 import type { PlateEval } from "@/shared/types";
 import { plateColor } from "@/features/plate/lib/plate";
+import { t } from "@/shared/i18n";
 
 const GROUPS = [
   { key: "verduras_frutas_pct", label: "VERD/FRUTA", target: 50, color: "var(--success)" },
@@ -52,7 +53,7 @@ export default function PlateBalanceCard({ data }: { data: PlateEval }) {
         </div>
         {/* Target reference: ½ veg · ¼ cereal · ¼ proteína */}
         <div className="font-mono text-[8px] tracking-[0.2em] text-[var(--fg-faint)] mt-1.5">
-          OBJETIVO · ½ VERD/FRUTA · ¼ CEREALES · ¼ PROTEÍNA
+          {t.plate.target}
         </div>
       </div>
 
@@ -87,7 +88,7 @@ export default function PlateBalanceCard({ data }: { data: PlateEval }) {
       {data.recomendacion && (
         <div className="border-t border-[var(--rule)] px-4 py-3 bg-[var(--bg-elev)]">
           <div className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] mb-1">
-            RECOMENDACIÓN
+            {t.plate.recommendation}
           </div>
           <div className="font-mono text-[11px] leading-relaxed text-[var(--fg-dim)]">
             {data.recomendacion}

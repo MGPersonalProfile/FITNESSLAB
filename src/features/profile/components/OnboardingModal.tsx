@@ -5,10 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
 import { track } from "@/shared/lib/analytics";
 import { CALIBRATION, clamp } from "@/shared/config";
+import { t } from "@/shared/i18n";
 import type { Profile } from "@/shared/types";
 import {
-  ACTIVITY_LABELS,
-  GOAL_LABELS,
   computeTargets,
   type ActivityLevel,
   type Goal,
@@ -62,7 +61,7 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
       .single();
     setSaving(false);
     if (err || !data) {
-      setError("No se pudo guardar. Reintenta.");
+      setError(t.onboarding.saveError);
       return;
     }
     track("onboarding_completed", { goal, activity });
@@ -87,21 +86,21 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
               SETUP // 000
             </div>
             <div className="font-display text-lg tracking-[0.05em] text-[var(--fg)] leading-none mt-1">
-              CALIBRACIÓN
+              {t.onboarding.title}
             </div>
           </header>
 
           <div className="px-5 py-6 flex flex-col gap-6">
             <p className="font-mono text-[10px] tracking-[0.15em] text-[var(--fg-dim)] leading-relaxed">
-              Calculamos tus objetivos diarios (Mifflin-St Jeor). Puedes ajustarlos luego en tu perfil.
+              {t.onboarding.intro}
             </p>
 
             {/* Sex */}
-            <Field label="SEXO">
+            <Field label={t.onboarding.sex}>
               <Toggle
                 options={[
-                  { v: "male", l: "HOMBRE" },
-                  { v: "female", l: "MUJER" },
+                  { v: "male", l: t.onboarding.male },
+                  { v: "female", l: t.onboarding.female },
                 ]}
                 value={sex}
                 onChange={(v) => setSex(v as Sex)}
@@ -109,15 +108,15 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
             </Field>
 
             <div className="grid grid-cols-3 gap-3">
-              <NumField label="EDAD" unit="años" value={age} onChange={setAge} min={CALIBRATION.age.min} max={CALIBRATION.age.max} />
-              <NumField label="ALTURA" unit="cm" value={heightCm} onChange={setHeightCm} min={CALIBRATION.height.min} max={CALIBRATION.height.max} />
-              <NumField label="PESO" unit="kg" value={weightKg} onChange={setWeightKg} min={CALIBRATION.weight.min} max={CALIBRATION.weight.max} />
+              <NumField label={t.onboarding.age} unit={t.onboarding.ageUnit} value={age} onChange={setAge} min={CALIBRATION.age.min} max={CALIBRATION.age.max} />
+              <NumField label={t.onboarding.height} unit="cm" value={heightCm} onChange={setHeightCm} min={CALIBRATION.height.min} max={CALIBRATION.height.max} />
+              <NumField label={t.onboarding.weight} unit="kg" value={weightKg} onChange={setWeightKg} min={CALIBRATION.weight.min} max={CALIBRATION.weight.max} />
             </div>
 
             {/* Activity */}
-            <Field label="ACTIVIDAD">
+            <Field label={t.onboarding.activity}>
               <div className="grid grid-cols-1 gap-px bg-[var(--rule)] border border-[var(--rule)]">
-                {(Object.keys(ACTIVITY_LABELS) as ActivityLevel[]).map((a) => (
+                {(Object.keys(t.activity) as ActivityLevel[]).map((a) => (
                   <button
                     key={a}
                     onClick={() => setActivity(a)}
@@ -126,16 +125,16 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
                     }`}
                   >
                     {activity === a ? "▸ " : "  "}
-                    {ACTIVITY_LABELS[a]}
+                    {t.activity[a]}
                   </button>
                 ))}
               </div>
             </Field>
 
             {/* Goal */}
-            <Field label="OBJETIVO">
+            <Field label={t.onboarding.goalLabel}>
               <Toggle
-                options={(Object.keys(GOAL_LABELS) as Goal[]).map((g) => ({ v: g, l: GOAL_LABELS[g].toUpperCase() }))}
+                options={(Object.keys(t.goal) as Goal[]).map((g) => ({ v: g, l: t.goal[g].toUpperCase() }))}
                 value={goal}
                 onChange={(v) => setGoal(v as Goal)}
               />
@@ -144,7 +143,7 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
             {/* Computed preview */}
             <div className="border border-[var(--rule)]">
               <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] px-4 pt-3">
-                OBJETIVOS // CALCULADOS
+                {t.onboarding.computed}
               </div>
               <div className="grid grid-cols-4 gap-px bg-[var(--rule)] border-t border-[var(--rule)] mt-3">
                 <Stat label="KCAL" value={targets.calories} accent />
@@ -163,7 +162,7 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
               disabled={saving}
               className="bg-[var(--accent)] hover:bg-[var(--accent-dim)] disabled:opacity-50 text-black font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
             >
-              {saving ? "GUARDANDO..." : "EMPEZAR →"}
+              {saving ? t.onboarding.saving : t.onboarding.start}
             </button>
           </div>
         </motion.div>

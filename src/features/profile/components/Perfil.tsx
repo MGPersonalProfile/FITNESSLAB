@@ -8,6 +8,7 @@ import type { Profile, WeightLog } from "@/shared/types";
 import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
 import { DEFAULT_TARGETS } from "@/shared/config";
+import { t } from "@/shared/i18n";
 import AchievementsCard from "@/features/social/components/AchievementsCard";
 import NotificationsToggle from "@/features/notifications/NotificationsToggle";
 
@@ -43,7 +44,7 @@ export default function Perfil({
   const [deleting, setDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("¿Borrar tu cuenta y TODOS tus datos? Esta acción es permanente.")) return;
+    if (!window.confirm(t.account.confirmDelete)) return;
     setDeleting(true);
     const res = await authedFetch("/api/account/delete", { method: "POST" });
     if (res.ok) {
@@ -51,7 +52,7 @@ export default function Perfil({
       onSignOut();
     } else {
       setDeleting(false);
-      window.alert("No se pudo borrar la cuenta. Reintenta.");
+      window.alert(t.account.deleteError);
     }
   };
 
@@ -334,21 +335,21 @@ export default function Perfil({
           onClick={onSignOut}
           className="w-full border border-[var(--rule)] hover:border-[var(--accent)] hover:text-[var(--accent)] text-[var(--fg-dim)] font-mono text-[11px] tracking-[0.3em] py-4 transition-colors active:scale-[0.99]"
         >
-          CERRAR SESIÓN
+          {t.account.signOut}
         </button>
         <button
           onClick={handleDeleteAccount}
           disabled={deleting}
           className="w-full mt-2 border border-transparent hover:border-[var(--accent)] text-[var(--fg-faint)] hover:text-[var(--accent)] disabled:opacity-50 font-mono text-[10px] tracking-[0.3em] py-3 transition-colors active:scale-[0.99]"
         >
-          {deleting ? "BORRANDO..." : "BORRAR CUENTA"}
+          {deleting ? t.account.deleting : t.account.deleteAccount}
         </button>
         <div className="flex items-center justify-center gap-4 mt-5">
           <Link href="/privacidad" className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)]">
-            PRIVACIDAD
+            {t.account.privacy}
           </Link>
           <Link href="/terminos" className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)]">
-            TÉRMINOS
+            {t.account.terms}
           </Link>
         </div>
         <div className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] text-center mt-3">

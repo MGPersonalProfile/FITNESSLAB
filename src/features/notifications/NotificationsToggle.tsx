@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { authedFetch } from "@/shared/lib/authedFetch";
 import { track } from "@/shared/lib/analytics";
+import { t } from "@/shared/i18n";
 
 type State = "checking" | "unsupported" | "default" | "denied" | "enabled" | "working";
 
@@ -72,15 +73,15 @@ export default function NotificationsToggle() {
   return (
     <section className="px-5 mt-8">
       <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
-        NOTIFICACIONES
+        {t.notifications.title}
       </div>
       {state === "enabled" ? (
         <div className="border border-[var(--rule)] py-3 text-center font-mono text-[10px] tracking-[0.25em] text-[var(--success)]">
-          ◆ ACTIVADAS
+          {t.notifications.enabled}
         </div>
       ) : state === "denied" ? (
         <div className="border border-[var(--rule)] py-3 text-center font-mono text-[9px] tracking-[0.2em] text-[var(--fg-faint)]">
-          BLOQUEADAS — ACTÍVALAS EN LOS AJUSTES DEL NAVEGADOR
+          {t.notifications.blocked}
         </div>
       ) : (
         <button
@@ -88,7 +89,7 @@ export default function NotificationsToggle() {
           disabled={state === "working"}
           className="w-full border border-[var(--rule)] hover:border-[var(--accent)] hover:text-[var(--accent)] text-[var(--fg-dim)] font-mono text-[10px] tracking-[0.3em] py-3 transition-colors active:scale-[0.99] disabled:opacity-50"
         >
-          {state === "working" ? "ACTIVANDO..." : "ACTIVAR RECORDATORIOS"}
+          {state === "working" ? t.notifications.working : t.notifications.enable}
         </button>
       )}
     </section>

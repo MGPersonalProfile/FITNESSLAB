@@ -8,23 +8,28 @@ export type AchievementStats = {
   friends: number;
 };
 
-export type Badge = {
-  key: string;
-  label: string;
-  desc: string;
-  earned: (s: AchievementStats) => boolean;
-};
+export type BadgeKey =
+  | "first_log"
+  | "logs_50"
+  | "logs_100"
+  | "streak_7"
+  | "streak_30"
+  | "days_30"
+  | "plate_perfect"
+  | "first_ally";
 
-// Badge catalogue — keys persisted to the achievements table once earned.
+export type Badge = { key: BadgeKey; earned: (s: AchievementStats) => boolean };
+
+// Badge catalogue — keys persisted once earned; labels live in i18n.
 export const BADGES: Badge[] = [
-  { key: "first_log", label: "INICIADO", desc: "Tu primer registro", earned: (s) => s.total_logs >= 1 },
-  { key: "logs_50", label: "CONSTANTE", desc: "50 registros", earned: (s) => s.total_logs >= 50 },
-  { key: "logs_100", label: "VETERANO", desc: "100 registros", earned: (s) => s.total_logs >= 100 },
-  { key: "streak_7", label: "RACHA 7", desc: "7 días seguidos", earned: (s) => s.streak >= 7 },
-  { key: "streak_30", label: "RACHA 30", desc: "30 días seguidos", earned: (s) => s.streak >= 30 },
-  { key: "days_30", label: "MES ACTIVO", desc: "30 días registrados", earned: (s) => s.log_days >= 30 },
-  { key: "plate_perfect", label: "PLATO PERFECTO", desc: "Balance 100", earned: (s) => s.best_plate >= 100 },
-  { key: "first_ally", label: "ALIADO", desc: "Tu primer amigo", earned: (s) => s.friends >= 1 },
+  { key: "first_log", earned: (s) => s.total_logs >= 1 },
+  { key: "logs_50", earned: (s) => s.total_logs >= 50 },
+  { key: "logs_100", earned: (s) => s.total_logs >= 100 },
+  { key: "streak_7", earned: (s) => s.streak >= 7 },
+  { key: "streak_30", earned: (s) => s.streak >= 30 },
+  { key: "days_30", earned: (s) => s.log_days >= 30 },
+  { key: "plate_perfect", earned: (s) => s.best_plate >= 100 },
+  { key: "first_ally", earned: (s) => s.friends >= 1 },
 ];
 
 export async function fetchAchievementStats(): Promise<AchievementStats> {

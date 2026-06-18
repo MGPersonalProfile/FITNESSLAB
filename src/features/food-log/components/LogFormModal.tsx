@@ -6,6 +6,7 @@ import { supabase } from "@/shared/lib/supabaseClient";
 import { evaluatePlate } from "@/features/plate/lib/plate";
 import PlateBalanceCard from "@/features/plate/components/PlateBalanceCard";
 import type { PlateAnalysis } from "@/shared/types";
+import { t } from "@/shared/i18n";
 import { todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
 import type { FoodLog, MealType } from "@/shared/types";
@@ -254,7 +255,7 @@ export default function LogFormModal({
                     onClick={() => setPlate(null)}
                     className="text-[var(--fg-faint)] hover:text-[var(--accent)] tracking-[0.25em]"
                   >
-                    QUITAR ×
+                    {t.plate.removeFromLog}
                   </button>
                 )}
               </div>
@@ -282,7 +283,7 @@ export default function LogFormModal({
                   }
                   className="w-full border border-dashed border-[var(--rule)] hover:border-[var(--fg-faint)] text-[var(--fg-faint)] hover:text-[var(--fg-dim)] font-mono text-[10px] tracking-[0.3em] py-3 transition-colors"
                 >
-                  + AÑADIR BALANCE DE PLATO
+                  {t.plate.addToLog}
                 </button>
               )}
             </div>

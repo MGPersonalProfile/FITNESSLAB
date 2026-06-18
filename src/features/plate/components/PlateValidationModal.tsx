@@ -6,6 +6,7 @@ import { track } from "@/shared/lib/analytics";
 import { useDishAnalysis } from "@/features/scan/hooks/useDishAnalysis";
 import { evaluatePlate } from "@/features/plate/lib/plate";
 import PlateBalanceCard from "@/features/plate/components/PlateBalanceCard";
+import { t } from "@/shared/i18n";
 
 type Props = {
   open: boolean;
@@ -70,14 +71,14 @@ export default function PlateValidationModal({ open, onClose }: Props) {
                 PLATO // HARVARD
               </div>
               <div className="font-display text-lg tracking-[0.05em] text-[var(--fg)] leading-none mt-1">
-                VALIDAR PLATO
+                {t.plate.sectionTitle}
               </div>
             </div>
             <button
               onClick={onClose}
               className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-dim)] hover:text-[var(--accent)] active:scale-95 transition-all"
             >
-              CERRAR ×
+              {t.common.close}
             </button>
           </header>
 
@@ -89,7 +90,7 @@ export default function PlateValidationModal({ open, onClose }: Props) {
               className="px-5 py-6 flex flex-col gap-6"
             >
               <div className="text-center font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-                FOTOGRAFÍA TU PLATO
+                {t.plate.capturePrompt}
               </div>
               <div className="aspect-[4/3] border border-dashed border-[var(--rule)] flex flex-col items-center justify-center gap-3 bg-grid">
                 <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-dim)] text-center px-6">
@@ -106,7 +107,7 @@ export default function PlateValidationModal({ open, onClose }: Props) {
                 onClick={() => fileRef.current?.click()}
                 className="bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
               >
-                ABRIR CÁMARA
+                {t.scan.openCamera}
               </button>
             </motion.div>
           )}
@@ -124,7 +125,7 @@ export default function PlateValidationModal({ open, onClose }: Props) {
                   <img src={preview} alt="" className="w-full h-full object-cover" />
                 )}
                 <div className="absolute bottom-2 left-2 right-2 font-mono text-[9px] tracking-[0.3em] text-[var(--accent)]">
-                  EVALUANDO BALANCE...
+                  {t.plate.evaluating}
                 </div>
               </div>
             </motion.div>
@@ -154,13 +155,13 @@ export default function PlateValidationModal({ open, onClose }: Props) {
                   }}
                   className="flex-1 border border-[var(--rule)] hover:border-[var(--fg-faint)] text-[var(--fg-dim)] font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
                 >
-                  VALIDAR OTRO
+                  {t.plate.validateAnother}
                 </button>
                 <button
                   onClick={onClose}
                   className="flex-[2] bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
                 >
-                  LISTO
+                  {t.plate.done}
                 </button>
               </div>
             </motion.div>

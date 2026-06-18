@@ -12,11 +12,9 @@ import {
   leaveChallenge,
 } from "@/features/social/challenges";
 import { CHALLENGE, clamp } from "@/shared/config";
+import { t } from "@/shared/i18n";
 
-const METRIC_LABEL: Record<ChallengeMetric, string> = {
-  log_days: "Días registrando",
-  plate_days: "Días con plato ≥80",
-};
+const METRIC_LABEL: Record<ChallengeMetric, string> = t.challenges.metric;
 
 export default function Challenges({ userId }: { userId: string }) {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -78,12 +76,12 @@ export default function Challenges({ userId }: { userId: string }) {
   return (
     <section className="px-5 mt-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">RETOS</span>
+        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{t.challenges.title}</span>
         <button
           onClick={() => setCreating((v) => !v)}
           className="font-mono text-[9px] tracking-[0.25em] text-[var(--accent)] hover:opacity-70"
         >
-          {creating ? "CANCELAR" : "+ CREAR"}
+          {creating ? t.common.cancel : t.challenges.create}
         </button>
       </div>
 
@@ -92,7 +90,7 @@ export default function Challenges({ userId }: { userId: string }) {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nombre del reto"
+            placeholder={t.challenges.namePlaceholder}
             className="bg-[var(--bg-elev)] border border-[var(--rule)] focus:border-[var(--accent)] outline-none font-mono text-[12px] text-[var(--fg)] py-2.5 px-3 placeholder:text-[var(--fg-faint)]"
           />
           <div className="grid grid-cols-2 gap-px bg-[var(--rule)] border border-[var(--rule)]">
@@ -109,27 +107,27 @@ export default function Challenges({ userId }: { userId: string }) {
             ))}
           </div>
           <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] text-[var(--fg-dim)]">
-            <span>META</span>
+            <span>{t.challenges.goalWord}</span>
             <input
               type="number"
               value={target}
               onChange={(e) => setTarget(clamp(parseInt(e.target.value || "1", 10), 1, CHALLENGE.maxTarget))}
               className="w-16 bg-transparent border-b border-[var(--rule)] focus:border-[var(--accent)] outline-none font-display text-xl text-[var(--fg)] text-center"
             />
-            <span className="text-[var(--fg-faint)]">/ {CHALLENGE.maxTarget} días</span>
+            <span className="text-[var(--fg-faint)]">/ {CHALLENGE.maxTarget} {t.challenges.days}</span>
           </div>
           <button
             onClick={create}
             className="bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black font-mono text-[10px] tracking-[0.3em] py-3 active:scale-[0.99]"
           >
-            CREAR RETO
+            {t.challenges.createBtn}
           </button>
         </div>
       )}
 
       {challenges.length === 0 ? (
         <div className="border border-dashed border-[var(--rule)] py-6 text-center font-mono text-[10px] tracking-[0.2em] text-[var(--fg-faint)]">
-          SIN RETOS ACTIVOS
+          {t.challenges.none}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -142,16 +140,16 @@ export default function Challenges({ userId }: { userId: string }) {
                   <span className="font-display text-lg text-[var(--fg)] leading-none">{c.title}</span>
                   {joined ? (
                     <button onClick={() => leave(c.id)} className="font-mono text-[9px] tracking-[0.2em] text-[var(--fg-faint)] hover:text-[var(--accent)]">
-                      SALIR
+                      {t.challenges.leave}
                     </button>
                   ) : (
                     <button onClick={() => join(c.id)} className="font-mono text-[9px] tracking-[0.2em] text-[var(--accent)] hover:opacity-70">
-                      UNIRME
+                      {t.challenges.join}
                     </button>
                   )}
                 </div>
                 <div className="font-mono text-[9px] tracking-[0.2em] text-[var(--fg-faint)] mt-1">
-                  {METRIC_LABEL[c.metric]} · META {c.target}/7 · HASTA {c.ends_on.slice(5)}
+                  {METRIC_LABEL[c.metric]} · {t.challenges.goalWord} {c.target}/{CHALLENGE.maxTarget} · HASTA {c.ends_on.slice(5)}
                 </div>
                 {joined && rank.length > 0 && (
                   <div className="mt-3 flex flex-col gap-1.5">

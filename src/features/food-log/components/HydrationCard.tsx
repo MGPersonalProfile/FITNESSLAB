@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { addWater, fetchWaterToday } from "@/features/food-log/data";
 import { track } from "@/shared/lib/analytics";
 import { HYDRATION } from "@/shared/config";
+import { t } from "@/shared/i18n";
 
 const GOAL_ML = HYDRATION.goalMl;
 const STEPS = HYDRATION.stepsMl;
@@ -40,7 +41,7 @@ export default function HydrationCard({ userId }: { userId: string }) {
     <div className="border border-[var(--rule)] p-4">
       <div className="flex items-baseline justify-between mb-3">
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
-          HIDRATACIÓN
+          {t.hydration.title}
         </span>
         <span className="font-mono text-[10px] tracking-[0.15em] text-[var(--fg-dim)]">
           {(ml / 1000).toFixed(2)}

@@ -11,6 +11,7 @@ import HabitChecklist from "@/features/food-log/components/HabitChecklist";
 import { dailyInsights } from "@/features/food-log/lib/insights";
 import { plateColor } from "@/features/plate/lib/plate";
 import { DEFAULT_TARGETS } from "@/shared/config";
+import { t } from "@/shared/i18n";
 
 type Props = {
   userId: string;
@@ -173,10 +174,10 @@ export default function Hoy({
                 SCAN // 001
               </span>
               <span className="font-display text-3xl tracking-[0.02em] text-black leading-none">
-                ANALIZAR PLATO
+                {t.today.scanCta}
               </span>
               <span className="font-mono text-[10px] tracking-[0.2em] text-black/75 mt-1">
-                Cámara → IA → Macros
+                {t.today.scanHint}
               </span>
             </div>
             <div className="flex flex-col items-center justify-center gap-1 shrink-0">
@@ -212,13 +213,13 @@ export default function Hoy({
             onClick={onManualLog}
             className="border border-[var(--rule)] hover:border-[var(--fg-faint)] bg-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] py-3 flex items-center justify-center gap-3 transition-colors active:scale-[0.99]"
           >
-            <span className="font-mono text-[10px] tracking-[0.3em]">+ MANUAL</span>
+            <span className="font-mono text-[10px] tracking-[0.3em]">{t.today.manual}</span>
           </button>
           <button
             onClick={onValidatePlate}
             className="border border-[var(--rule)] hover:border-[var(--fg-faint)] bg-transparent text-[var(--fg-dim)] hover:text-[var(--fg)] py-3 flex items-center justify-center gap-3 transition-colors active:scale-[0.99]"
           >
-            <span className="font-mono text-[10px] tracking-[0.3em]">◐ VALIDAR PLATO</span>
+            <span className="font-mono text-[10px] tracking-[0.3em]">{t.today.validatePlate}</span>
           </button>
         </div>
       </motion.section>
@@ -237,7 +238,7 @@ export default function Hoy({
       >
         <div className="flex items-baseline justify-between mb-3">
           <span className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-            LOGS // BY MEAL
+            {t.today.logsByMeal}
           </span>
         </div>
 
@@ -265,10 +266,10 @@ export default function Hoy({
           {todayLogs.length === 0 && (
             <div className="border border-dashed border-[var(--rule)] py-10 px-5 text-center">
               <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-                SIN REGISTROS
+                {t.today.noLogs}
               </div>
               <div className="font-mono text-[10px] tracking-[0.2em] text-[var(--fg-dim)] mt-2">
-                Escanea tu primera comida del día
+                {t.today.noLogsHint}
               </div>
             </div>
           )}

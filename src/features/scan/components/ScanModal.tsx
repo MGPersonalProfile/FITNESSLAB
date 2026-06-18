@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
 import { todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
+import { t } from "@/shared/i18n";
 import type { MealType, PlateAnalysis } from "@/shared/types";
 import MealTypePicker from "@/shared/components/MealTypePicker";
 import { useDishAnalysis } from "@/features/scan/hooks/useDishAnalysis";
@@ -145,7 +146,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
 
     if (insErr) {
       console.error(insErr);
-      setSaveError("No se pudo guardar el registro.");
+      setSaveError(t.scan.saveError);
       return;
     }
 
@@ -228,7 +229,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
               className="px-5 py-6 flex flex-col gap-6"
             >
               <div className="text-center font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
-                AWAITING SPECIMEN
+                {t.scan.awaiting}
               </div>
               <div className="aspect-[4/3] border border-dashed border-[var(--rule)] flex flex-col items-center justify-center gap-3 bg-grid">
                 <svg
@@ -243,7 +244,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                   <path d="M8 6l2-3h4l2 3" />
                 </svg>
                 <div className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-dim)]">
-                  CAPTURE A PHOTO
+                  {t.scan.capturePhoto}
                 </div>
               </div>
               {analyzeError && (
@@ -255,7 +256,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                 onClick={() => fileRef.current?.click()}
                 className="bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
               >
-                ABRIR CÁMARA
+                {t.scan.openCamera}
               </button>
             </motion.div>
           )}
@@ -379,13 +380,13 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                   onClick={onClose}
                   className="flex-1 border border-[var(--rule)] hover:border-[var(--fg-faint)] text-[var(--fg-dim)] font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
                 >
-                  DESCARTAR
+                  {t.common.discard}
                 </button>
                 <button
                   onClick={confirm}
                   className="flex-[2] bg-[var(--accent)] hover:bg-[var(--accent-dim)] text-black font-mono text-[11px] tracking-[0.3em] py-4 active:scale-[0.99] transition-transform"
                 >
-                  CONFIRMAR & LOG
+                  {t.scan.confirmLog}
                 </button>
               </div>
             </motion.div>
@@ -421,14 +422,14 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
                 onClick={saveAsFrequent}
                 className="bg-transparent border border-[var(--rule)] hover:border-[var(--accent)] hover:text-[var(--accent)] text-[var(--fg-dim)] font-mono text-[11px] tracking-[0.3em] py-4 transition-colors active:scale-[0.99]"
               >
-                ★ GUARDAR EN FRECUENTES
+                {t.scan.saveFrequent}
               </button>
 
               <button
                 onClick={onClose}
                 className="font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)] transition-colors"
               >
-                VOLVER A HOY ↩
+                {t.scan.backToToday}
               </button>
             </motion.div>
           )}
@@ -488,7 +489,7 @@ function NotesField({
         onClick={() => setOpen(true)}
         className="text-left font-mono text-[10px] tracking-[0.25em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)] transition-colors"
       >
-        + AÑADIR NOTA
+        {t.scan.addNote}
       </button>
     );
   }

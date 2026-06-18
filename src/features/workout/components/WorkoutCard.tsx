@@ -9,6 +9,7 @@ import {
   type WorkoutKind,
 } from "@/features/workout/data";
 import { WORKOUT } from "@/shared/config";
+import { t } from "@/shared/i18n";
 
 const MINUTE_STEPS = WORKOUT.minuteSteps;
 
@@ -43,7 +44,7 @@ export default function WorkoutCard({ userId }: { userId: string }) {
     <div className="border border-[var(--rule)] p-4">
       <div className="flex items-baseline justify-between mb-3">
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
-          ENTRENO // 7D
+          {t.workout.title}
         </span>
         <span className="font-mono text-[10px] tracking-[0.15em] text-[var(--fg-dim)]">
           {weekMin}<span className="text-[var(--fg-faint)]"> min</span>
@@ -58,7 +59,7 @@ export default function WorkoutCard({ userId }: { userId: string }) {
               kind === k ? "text-[var(--accent)]" : "text-[var(--fg-dim)]"
             }`}
           >
-            {k.toUpperCase()}
+            {t.workout.kinds[k]}
           </button>
         ))}
       </div>

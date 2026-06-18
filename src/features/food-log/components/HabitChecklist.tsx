@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { fetchAchievementStats, type AchievementStats } from "@/features/social/achievements";
+import { t } from "@/shared/i18n";
 
 type Item = { label: string; done: (s: AchievementStats) => boolean };
 
 const ITEMS: Item[] = [
-  { label: "Registra tu primera comida", done: (s) => s.total_logs >= 1 },
-  { label: "Valida un plato (balance)", done: (s) => s.best_plate > 0 },
-  { label: "Suma un amigo en Social", done: (s) => s.friends >= 1 },
-  { label: "Llega a 3 días de racha", done: (s) => s.streak >= 3 },
+  { label: t.habit.steps.log, done: (s) => s.total_logs >= 1 },
+  { label: t.habit.steps.plate, done: (s) => s.best_plate > 0 },
+  { label: t.habit.steps.friend, done: (s) => s.friends >= 1 },
+  { label: t.habit.steps.streak, done: (s) => s.streak >= 3 },
 ];
 
 export default function HabitChecklist() {
@@ -32,7 +33,7 @@ export default function HabitChecklist() {
     <div className="border border-[var(--rule)]">
       <div className="flex items-baseline justify-between px-4 pt-3">
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
-          PRIMEROS PASOS
+          {t.habit.title}
         </span>
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--accent)]">
           {doneCount}/{ITEMS.length}

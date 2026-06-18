@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchLeaderboard, type LeaderboardRow } from "@/features/social/data";
 import { plateColor } from "@/features/plate/lib/plate";
+import { t } from "@/shared/i18n";
 
 export default function Leaderboard({ userId }: { userId: string }) {
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
@@ -27,14 +28,14 @@ export default function Leaderboard({ userId }: { userId: string }) {
   return (
     <section className="px-5 mt-8">
       <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
-        RANKING // 7D
+        {t.social.leaderboard}
       </div>
       <div className="grid grid-cols-[20px_1fr_auto_auto_auto] items-center gap-x-2.5 font-mono text-[8px] tracking-[0.2em] text-[var(--fg-faint)] px-1 pb-1">
         <span>#</span>
-        <span>OPERADOR</span>
-        <span className="text-right">RACHA</span>
-        <span className="text-right">PLATO</span>
-        <span className="text-right">GYM</span>
+        <span>{t.social.colOperator}</span>
+        <span className="text-right">{t.social.colStreak}</span>
+        <span className="text-right">{t.social.colPlate}</span>
+        <span className="text-right">{t.social.colGym}</span>
       </div>
       <div className="flex flex-col">
         {rows.map((r, i) => {
@@ -48,8 +49,8 @@ export default function Leaderboard({ userId }: { userId: string }) {
             >
               <span className="font-mono text-[11px] text-[var(--fg-faint)]">{i + 1}</span>
               <span className={`font-mono text-[12px] truncate ${me ? "text-[var(--accent)]" : "text-[var(--fg)]"}`}>
-                {r.display_name ?? "Anónimo"}
-                {me && <span className="text-[var(--fg-faint)] text-[9px] tracking-[0.2em]"> · TÚ</span>}
+                {r.display_name ?? t.social.anon}
+                {me && <span className="text-[var(--fg-faint)] text-[9px] tracking-[0.2em]">{t.social.you}</span>}
               </span>
               <span className="font-mono text-[12px] text-[var(--fg-dim)] text-right">
                 {r.streak}
