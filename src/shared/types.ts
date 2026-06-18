@@ -108,6 +108,15 @@ export type AnalysisResult = {
   plato: PlateAnalysis;
 };
 
+// ===== Social =====
+export type Friend = { id: string; display_name: string | null; avatar_url: string | null };
+export type FriendRequest = {
+  id: string;
+  requester: string;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
 export type Macros = {
   calories: number;
   protein: number;

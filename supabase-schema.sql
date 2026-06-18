@@ -308,6 +308,99 @@ END;
 $$;
 
 -- ============================================
+-- SOCIAL — friendships + profile email for lookup (added 2026-06-18)
+-- ============================================
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email text;
+-- Backfill email from auth.users for existing profiles.
+UPDATE profiles p SET email = u.email
+  FROM auth.users u WHERE p.id = u.id AND p.email IS NULL;
+
+-- Keep email populated for new signups (extends the existing trigger fn).
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, display_name, avatar_url)
+  VALUES (
+    new.id,
+    new.email,
+    COALESCE(
+      new.raw_user_meta_data->>'full_name',
+      new.raw_user_meta_data->>'name',
+      split_part(new.email, '@', 1)
+    ),
+    COALESCE(
+      new.raw_user_meta_data->>'avatar_url',
+      new.raw_user_meta_data->>'picture'
+    )
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TABLE IF NOT EXISTS friendships (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  requester uuid REFERENCES auth.users NOT NULL,
+  addressee uuid REFERENCES auth.users NOT NULL,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE (requester, addressee)
+);
+
+ALTER TABLE friendships ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "View own friendships" ON friendships;
+CREATE POLICY "View own friendships" ON friendships
+  FOR SELECT TO authenticated USING (auth.uid() IN (requester, addressee));
+
+DROP POLICY IF EXISTS "Respond to friendships" ON friendships;
+CREATE POLICY "Respond to friendships" ON friendships
+  FOR UPDATE TO authenticated USING (auth.uid() = addressee);
+
+DROP POLICY IF EXISTS "Delete own friendships" ON friendships;
+CREATE POLICY "Delete own friendships" ON friendships
+  FOR DELETE TO authenticated USING (auth.uid() IN (requester, addressee));
+
+CREATE INDEX IF NOT EXISTS idx_friendships_addressee ON friendships (addressee, status);
+CREATE INDEX IF NOT EXISTS idx_friendships_requester ON friendships (requester, status);
+
+-- Send a friend request by email (SECURITY DEFINER to look up the target).
+CREATE OR REPLACE FUNCTION public.send_friend_request(target_email text)
+RETURNS text AS $$
+DECLARE
+  target uuid;
+BEGIN
+  SELECT id INTO target FROM profiles WHERE lower(email) = lower(trim(target_email));
+  IF target IS NULL THEN RETURN 'not_found'; END IF;
+  IF target = auth.uid() THEN RETURN 'self'; END IF;
+  IF EXISTS (
+    SELECT 1 FROM friendships
+    WHERE (requester = auth.uid() AND addressee = target)
+       OR (requester = target AND addressee = auth.uid())
+  ) THEN RETURN 'exists'; END IF;
+  INSERT INTO friendships (requester, addressee) VALUES (auth.uid(), target);
+  RETURN 'ok';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Accepted friends with their profile info.
+CREATE OR REPLACE FUNCTION public.get_friends()
+RETURNS TABLE (id uuid, display_name text, avatar_url text) AS $$
+  SELECT p.id, p.display_name, p.avatar_url
+  FROM friendships f
+  JOIN profiles p ON p.id = CASE WHEN f.requester = auth.uid() THEN f.addressee ELSE f.requester END
+  WHERE f.status = 'accepted' AND auth.uid() IN (f.requester, f.addressee);
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- Incoming pending requests addressed to me.
+CREATE OR REPLACE FUNCTION public.get_pending_requests()
+RETURNS TABLE (id uuid, requester uuid, display_name text, avatar_url text) AS $$
+  SELECT f.id, f.requester, p.display_name, p.avatar_url
+  FROM friendships f
+  JOIN profiles p ON p.id = f.requester
+  WHERE f.addressee = auth.uid() AND f.status = 'pending';
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- ============================================
 -- INDEXES
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_food_logs_user_date    ON food_logs    (user_id, log_date DESC);

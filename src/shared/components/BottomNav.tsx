@@ -2,13 +2,14 @@
 
 import { motion } from "framer-motion";
 
-export type Tab = "hoy" | "historial" | "frecuentes" | "perfil";
+export type Tab = "hoy" | "historial" | "frecuentes" | "social" | "perfil";
 
 const ITEMS: { id: Tab; label: string; code: string }[] = [
-  { id: "hoy",        label: "HOY",        code: "01" },
-  { id: "historial",  label: "HISTORIAL",  code: "02" },
-  { id: "frecuentes", label: "FRECUENTES", code: "03" },
-  { id: "perfil",     label: "PERFIL",     code: "04" },
+  { id: "hoy",        label: "HOY",   code: "01" },
+  { id: "historial",  label: "HIST",  code: "02" },
+  { id: "frecuentes", label: "FREC",  code: "03" },
+  { id: "social",     label: "SOCIAL", code: "04" },
+  { id: "perfil",     label: "PERFIL", code: "05" },
 ];
 
 type Props = {
@@ -22,7 +23,7 @@ export default function BottomNav({ active, onChange }: Props) {
       className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--rule)] bg-[var(--bg)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--bg)]/80"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid grid-cols-4 relative">
+      <ul className="grid grid-cols-5 relative">
         {ITEMS.map((it) => {
           const isActive = active === it.id;
           return (

@@ -16,6 +16,7 @@ import Hoy from "@/features/food-log/components/Hoy";
 import Historial from "@/features/food-log/components/Historial";
 import Frecuentes from "@/features/saved-meals/components/Frecuentes";
 import Perfil from "@/features/profile/components/Perfil";
+import Social from "@/features/social/components/Social";
 import ScanModal from "@/features/scan/components/ScanModal";
 import LogFormModal from "@/features/food-log/components/LogFormModal";
 import PlateValidationModal from "@/features/plate/components/PlateValidationModal";
@@ -212,6 +213,7 @@ export default function Home() {
               onDelete={handleDeleteSaved}
             />
           )}
+          {tab === "social" && <Social userId={userId} />}
           {tab === "perfil" && (
             <Perfil
               userId={userId}
