@@ -5,9 +5,11 @@ import type { FoodLog, MealType, Profile } from "@/shared/types";
 import { MEAL_TYPES, sumMacros } from "@/shared/types";
 import { formatTime, todayMadrid } from "@/shared/lib/dates";
 import MacroRing from "@/features/food-log/components/MacroRing";
+import HydrationCard from "@/features/food-log/components/HydrationCard";
 import { dailyInsights } from "@/features/food-log/lib/insights";
 
 type Props = {
+  userId: string;
   profile: Profile | null;
   todayLogs: FoodLog[];
   streak: number;
@@ -37,6 +39,7 @@ function insightColor(level: "good" | "warn" | "info"): string {
 }
 
 export default function Hoy({
+  userId,
   profile,
   todayLogs,
   streak,
@@ -216,6 +219,11 @@ export default function Hoy({
             <span className="font-mono text-[10px] tracking-[0.3em]">◐ VALIDAR PLATO</span>
           </button>
         </div>
+      </motion.section>
+
+      {/* HYDRATION */}
+      <motion.section {...SECTION_FADE} transition={{ delay: 0.12 }} className="px-5">
+        <HydrationCard userId={userId} />
       </motion.section>
 
       {/* LOGS BY MEAL */}

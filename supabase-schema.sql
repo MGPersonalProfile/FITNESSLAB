@@ -168,6 +168,27 @@ CREATE POLICY "Users can delete their own saved meals" ON saved_meals
   FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- ============================================
+-- WATER_LOGS — hydration tracking (one row per quick-add)
+-- ============================================
+CREATE TABLE IF NOT EXISTS water_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  log_date date DEFAULT (timezone('Europe/Madrid', now()))::date NOT NULL,
+  ml integer NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE water_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users manage their own water logs" ON water_logs;
+CREATE POLICY "Users manage their own water logs" ON water_logs
+  FOR ALL TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_water_logs_user_date ON water_logs (user_id, log_date DESC);
+
+-- ============================================
 -- WEIGHT_LOGS
 -- ============================================
 CREATE TABLE IF NOT EXISTS weight_logs (

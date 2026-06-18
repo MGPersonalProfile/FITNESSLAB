@@ -36,6 +36,19 @@ export async function fetchStreak(uid: string): Promise<number> {
   return typeof data === "number" ? data : 0;
 }
 
+export async function fetchWaterToday(uid: string): Promise<number> {
+  const { data } = await supabase
+    .from("water_logs")
+    .select("ml")
+    .eq("user_id", uid)
+    .eq("log_date", todayMadrid());
+  return ((data as { ml: number }[]) ?? []).reduce((s, r) => s + r.ml, 0);
+}
+
+export async function addWater(uid: string, ml: number): Promise<void> {
+  await supabase.from("water_logs").insert({ user_id: uid, ml, log_date: todayMadrid() });
+}
+
 export type Dashboard = {
   profile: Profile | null;
   today: FoodLog[];

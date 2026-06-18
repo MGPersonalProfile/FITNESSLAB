@@ -191,6 +191,7 @@ export default function Home() {
         >
           {tab === "hoy" && (
             <Hoy
+              userId={userId}
               profile={profile}
               todayLogs={todayLogs}
               streak={streak}
