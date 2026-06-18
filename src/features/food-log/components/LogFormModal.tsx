@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
+import { evaluatePlate } from "@/features/plate/lib/plate";
+import PlateBalanceCard from "@/features/plate/components/PlateBalanceCard";
+import type { PlateAnalysis } from "@/shared/types";
 import { todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
 import type { FoodLog, MealType } from "@/shared/types";
@@ -72,6 +75,7 @@ export default function LogFormModal({
       : blank;
 
   const [form, setForm] = useState<Form>(blank);
+  const [plate, setPlate] = useState<PlateAnalysis | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -83,8 +87,12 @@ export default function LogFormModal({
     if (open) {
       setError(null);
       setForm(formFromProps());
+      setPlate(mode === "edit" && initial?.plate_eval ? initial.plate_eval : null);
     }
   }
+
+  const setPlatePct = (k: keyof PlateAnalysis, v: number) =>
+    setPlate((p) => (p ? { ...p, [k]: Math.max(0, Math.min(100, v)) } : p));
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -97,6 +105,7 @@ export default function LogFormModal({
     setSaving(true);
     setError(null);
 
+    const plateEval = plate ? evaluatePlate(plate) : null;
     const payload = {
       food_name: form.food_name.trim(),
       calories: intOr0(form.calories),
@@ -108,6 +117,8 @@ export default function LogFormModal({
       meal_type: form.meal_type,
       notes: form.notes.trim() || null,
       is_ai_estimated: false,
+      plate_score: plateEval?.score ?? null,
+      plate_eval: plateEval,
     };
 
     if (mode === "edit" && initial) {
@@ -232,6 +243,48 @@ export default function LogFormModal({
                 <NumCell label="FIB"  unit="g"    value={form.fiber}    onChange={(v) => set("fiber", v)} small />
                 <NumCell label="SUG"  unit="g"    value={form.sugar}    onChange={(v) => set("sugar", v)} small />
               </div>
+            </div>
+
+            {/* Plate balance — editable proportions, recomputed on save */}
+            <div>
+              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2 flex items-center justify-between">
+                <span>BALANCE // PLATO</span>
+                {plate && (
+                  <button
+                    onClick={() => setPlate(null)}
+                    className="text-[var(--fg-faint)] hover:text-[var(--accent)] tracking-[0.25em]"
+                  >
+                    QUITAR ×
+                  </button>
+                )}
+              </div>
+              {plate ? (
+                <div className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-px bg-[var(--rule)] border border-[var(--rule)]">
+                    <NumCell label="VERD/FRUTA" unit="%" value={String(plate.verduras_frutas_pct)} onChange={(v) => setPlatePct("verduras_frutas_pct", parseInt(v || "0", 10))} small />
+                    <NumCell label="CEREALES" unit="%" value={String(plate.cereales_pct)} onChange={(v) => setPlatePct("cereales_pct", parseInt(v || "0", 10))} small />
+                    <NumCell label="PROTEÍNA" unit="%" value={String(plate.proteina_pct)} onChange={(v) => setPlatePct("proteina_pct", parseInt(v || "0", 10))} small />
+                    <NumCell label="OTROS" unit="%" value={String(plate.otros_pct)} onChange={(v) => setPlatePct("otros_pct", parseInt(v || "0", 10))} small />
+                  </div>
+                  <PlateBalanceCard data={evaluatePlate(plate)} />
+                </div>
+              ) : (
+                <button
+                  onClick={() =>
+                    setPlate({
+                      verduras_frutas_pct: 50,
+                      cereales_pct: 25,
+                      proteina_pct: 25,
+                      otros_pct: 0,
+                      detectado: [],
+                      recomendacion: "",
+                    })
+                  }
+                  className="w-full border border-dashed border-[var(--rule)] hover:border-[var(--fg-faint)] text-[var(--fg-faint)] hover:text-[var(--fg-dim)] font-mono text-[10px] tracking-[0.3em] py-3 transition-colors"
+                >
+                  + AÑADIR BALANCE DE PLATO
+                </button>
+              )}
             </div>
 
             <div>
