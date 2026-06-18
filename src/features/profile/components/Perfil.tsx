@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/shared/lib/supabaseClient";
+import { authedFetch } from "@/shared/lib/authedFetch";
 import type { Profile, WeightLog } from "@/shared/types";
 import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
@@ -35,6 +37,20 @@ export default function Perfil({
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
   const [newWeight, setNewWeight] = useState<string>("");
   const [weightSaving, setWeightSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("¿Borrar tu cuenta y TODOS tus datos? Esta acción es permanente.")) return;
+    setDeleting(true);
+    const res = await authedFetch("/api/account/delete", { method: "POST" });
+    if (res.ok) {
+      track("account_deleted");
+      onSignOut();
+    } else {
+      setDeleting(false);
+      window.alert("No se pudo borrar la cuenta. Reintenta.");
+    }
+  };
 
   // Re-sync targets when the profile prop changes — adjusting state during
   // render (React-endorsed) instead of an effect, unless the user is editing.
@@ -311,7 +327,22 @@ export default function Perfil({
         >
           CERRAR SESIÓN
         </button>
-        <div className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] text-center mt-4">
+        <button
+          onClick={handleDeleteAccount}
+          disabled={deleting}
+          className="w-full mt-2 border border-transparent hover:border-[var(--accent)] text-[var(--fg-faint)] hover:text-[var(--accent)] disabled:opacity-50 font-mono text-[10px] tracking-[0.3em] py-3 transition-colors active:scale-[0.99]"
+        >
+          {deleting ? "BORRANDO..." : "BORRAR CUENTA"}
+        </button>
+        <div className="flex items-center justify-center gap-4 mt-5">
+          <Link href="/privacidad" className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)]">
+            PRIVACIDAD
+          </Link>
+          <Link href="/terminos" className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] hover:text-[var(--fg-dim)]">
+            TÉRMINOS
+          </Link>
+        </div>
+        <div className="font-mono text-[8px] tracking-[0.3em] text-[var(--fg-faint)] text-center mt-3">
           FITNESSLAB · v1.0
         </div>
       </section>
