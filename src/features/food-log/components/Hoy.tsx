@@ -5,6 +5,7 @@ import type { FoodLog, MealType, Profile } from "@/shared/types";
 import { MEAL_TYPES, sumMacros } from "@/shared/types";
 import { formatTime, todayMadrid } from "@/shared/lib/dates";
 import MacroRing from "@/features/food-log/components/MacroRing";
+import { dailyInsights } from "@/features/food-log/lib/insights";
 
 type Props = {
   profile: Profile | null;
@@ -29,6 +30,12 @@ function plateScoreColor(score: number): string {
   return "var(--accent)";
 }
 
+function insightColor(level: "good" | "warn" | "info"): string {
+  if (level === "good") return "var(--success)";
+  if (level === "warn") return "var(--warning)";
+  return "var(--fg-faint)";
+}
+
 export default function Hoy({
   profile,
   todayLogs,
@@ -40,6 +47,7 @@ export default function Hoy({
   onDeleteLog,
 }: Props) {
   const totals = sumMacros(todayLogs);
+  const insights = dailyInsights(todayLogs, profile);
 
   const targets = {
     calories: profile?.target_calories ?? 2000,
@@ -112,6 +120,28 @@ export default function Hoy({
           <MacroRing value={totals.fat}      target={targets.fat}      label="FAT"  unit="g" />
         </div>
       </motion.section>
+
+      {/* INSIGHTS — daily coaching */}
+      {insights.length > 0 && (
+        <motion.section {...SECTION_FADE} transition={{ delay: 0.08 }} className="px-5">
+          <div className="flex flex-col border border-[var(--rule)]">
+            {insights.map((ins, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 px-4 py-3 border-b border-[var(--rule)] last:border-b-0"
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ backgroundColor: insightColor(ins.level) }}
+                />
+                <span className="font-mono text-[11px] tracking-[0.05em] text-[var(--fg-dim)]">
+                  {ins.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* SCAN CTA — the hero action */}
       <motion.section
