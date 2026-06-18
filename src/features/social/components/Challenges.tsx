@@ -76,7 +76,7 @@ export default function Challenges({ userId }: { userId: string }) {
   return (
     <section className="px-5 mt-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{t.challenges.title}</span>
+        <span className="mono-label">{t.challenges.title}</span>
         <button
           onClick={() => setCreating((v) => !v)}
           className="font-mono text-[9px] tracking-[0.25em] text-[var(--accent)] hover:opacity-70"

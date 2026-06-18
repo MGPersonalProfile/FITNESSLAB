@@ -211,7 +211,7 @@ export default function LogFormModal({
 
           <div className="px-5 py-5 flex flex-col gap-5">
             <div>
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-1.5">
+              <div className="mono-label mb-1.5">
                 ID
               </div>
               <input
@@ -223,7 +223,7 @@ export default function LogFormModal({
             </div>
 
             <div>
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+              <div className="mono-label mb-2">
                 MEAL // TYPE
               </div>
               <MealTypePicker
@@ -233,7 +233,7 @@ export default function LogFormModal({
             </div>
 
             <div>
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+              <div className="mono-label mb-2">
                 MACROS // READOUT
               </div>
               <div className="grid grid-cols-2 gap-px bg-[var(--rule)] border border-[var(--rule)]">
@@ -248,7 +248,7 @@ export default function LogFormModal({
 
             {/* Plate balance — editable proportions, recomputed on save */}
             <div>
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2 flex items-center justify-between">
+              <div className="mono-label mb-2 flex items-center justify-between">
                 <span>BALANCE // PLATO</span>
                 {plate && (
                   <button
@@ -289,7 +289,7 @@ export default function LogFormModal({
             </div>
 
             <div>
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-1.5">
+              <div className="mono-label mb-1.5">
                 NOTE
               </div>
               <input
@@ -355,7 +355,7 @@ function NumCell({
 }) {
   return (
     <div className="bg-[var(--bg)] p-3">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+      <div className="mono-label">
         {label}
       </div>
       <input

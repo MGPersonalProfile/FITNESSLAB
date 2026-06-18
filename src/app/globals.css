@@ -202,3 +202,13 @@ input[type="number"] { -moz-appearance: textfield; }
 /* Hide scrollbars on horizontal mini-rails (HISTORIAL preview, etc.) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ====== Typography utility tokens ======
+   The lab-report micro-label, factored out of dozens of identical
+   `mono-label` strings. */
+@utility mono-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--fg-faint);
+}

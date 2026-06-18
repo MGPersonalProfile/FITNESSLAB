@@ -142,7 +142,7 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
 
             {/* Computed preview */}
             <div className="border border-[var(--rule)]">
-              <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] px-4 pt-3">
+              <div className="mono-label px-4 pt-3">
                 {t.onboarding.computed}
               </div>
               <div className="grid grid-cols-4 gap-px bg-[var(--rule)] border-t border-[var(--rule)] mt-3">
@@ -174,7 +174,7 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">{label}</div>
+      <div className="mono-label mb-2">{label}</div>
       {children}
     </div>
   );
@@ -240,7 +240,7 @@ function NumField({
 
   return (
     <div className="border border-[var(--rule)] p-3">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{label}</div>
+      <div className="mono-label">{label}</div>
       <input
         type="number"
         inputMode="numeric"
@@ -257,7 +257,7 @@ function NumField({
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
     <div className="bg-[var(--bg)] p-3">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{label}</div>
+      <div className="mono-label">{label}</div>
       <div className={`font-display text-2xl mt-1 ${accent ? "text-[var(--accent)]" : "text-[var(--fg)]"}`}>
         {value}
       </div>

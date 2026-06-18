@@ -32,7 +32,7 @@ export default function HabitChecklist() {
   return (
     <div className="border border-[var(--rule)]">
       <div className="flex items-baseline justify-between px-4 pt-3">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+        <span className="mono-label">
           {t.habit.title}
         </span>
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--accent)]">

@@ -375,7 +375,7 @@ function TargetCell({
 }) {
   return (
     <div className="bg-[var(--bg)] p-4">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+      <div className="mono-label">
         {label}
       </div>
       {editing ? (

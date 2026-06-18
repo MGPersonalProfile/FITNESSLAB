@@ -298,7 +298,7 @@ function MealBlock({
     <div>
       <div className="flex items-baseline justify-between mb-2">
         <div className="flex items-baseline gap-3">
-          <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+          <span className="mono-label">
             {forceLabel ?? type.toUpperCase()}
           </span>
           <span className="font-mono text-[9px] tracking-[0.2em] text-[var(--fg-dim)]">

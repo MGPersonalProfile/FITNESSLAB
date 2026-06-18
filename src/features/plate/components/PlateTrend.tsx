@@ -37,7 +37,7 @@ export default function PlateTrend({ userId }: { userId: string }) {
   return (
     <div className="mx-5 mb-6 border border-[var(--rule)] p-4">
       <div className="flex items-baseline justify-between mb-3">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+        <span className="mono-label">
           BALANCE // PLATO · {points.length}D
         </span>
         <span className="font-mono text-[10px] tracking-[0.15em]" style={{ color: color(avg) }}>

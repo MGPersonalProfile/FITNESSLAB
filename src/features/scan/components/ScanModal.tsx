@@ -316,7 +316,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
 
               {/* Name */}
               <div>
-                <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-1.5">
+                <div className="mono-label mb-1.5">
                   ID
                 </div>
                 <input
@@ -328,7 +328,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
 
               {/* Meal type */}
               <div>
-                <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+                <div className="mono-label mb-2">
                   MEAL // TYPE
                 </div>
                 <MealTypePicker
@@ -339,7 +339,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
 
               {/* Macros editable grid */}
               <div>
-                <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2 flex items-center justify-between">
+                <div className="mono-label mb-2 flex items-center justify-between">
                   <span>MACROS // READOUT</span>
                   {edited && (
                     <span className="text-[var(--accent)] tracking-[0.25em]">EDITED</span>
@@ -357,7 +357,7 @@ export default function ScanModal({ open, userId, onClose, onDone }: Props) {
 
               {/* Plate balance (Harvard) */}
               <div>
-                <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+                <div className="mono-label mb-2">
                   BALANCE // PLATO
                 </div>
                 <PlateBalanceCard data={evaluatePlate(draft.plato)} />
@@ -456,7 +456,7 @@ function NumCell({
 }) {
   return (
     <div className="bg-[var(--bg)] p-3">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+      <div className="mono-label">
         {label}
       </div>
       <input
@@ -495,7 +495,7 @@ function NotesField({
   }
   return (
     <div>
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-1.5">
+      <div className="mono-label mb-1.5">
         NOTE
       </div>
       <input

@@ -43,7 +43,7 @@ export default function WorkoutCard({ userId }: { userId: string }) {
   return (
     <div className="border border-[var(--rule)] p-4">
       <div className="flex items-baseline justify-between mb-3">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+        <span className="mono-label">
           {t.workout.title}
         </span>
         <span className="font-mono text-[10px] tracking-[0.15em] text-[var(--fg-dim)]">

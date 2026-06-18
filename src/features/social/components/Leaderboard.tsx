@@ -27,7 +27,7 @@ export default function Leaderboard({ userId }: { userId: string }) {
 
   return (
     <section className="px-5 mt-8">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+      <div className="mono-label mb-2">
         {t.social.leaderboard}
       </div>
       <div className="grid grid-cols-[20px_1fr_auto_auto_auto] items-center gap-x-2.5 font-mono text-[8px] tracking-[0.2em] text-[var(--fg-faint)] px-1 pb-1">

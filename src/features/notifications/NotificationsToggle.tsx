@@ -72,7 +72,7 @@ export default function NotificationsToggle() {
 
   return (
     <section className="px-5 mt-8">
-      <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">
+      <div className="mono-label mb-2">
         {t.notifications.title}
       </div>
       {state === "enabled" ? (

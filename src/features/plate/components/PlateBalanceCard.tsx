@@ -18,7 +18,7 @@ export default function PlateBalanceCard({ data }: { data: PlateEval }) {
       {/* Header: score + verdict */}
       <div className="flex items-stretch border-b border-[var(--rule)]">
         <div className="flex flex-col justify-center px-4 py-3 border-r border-[var(--rule)] min-w-[92px]">
-          <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">
+          <div className="mono-label">
             PLATO // HARVARD
           </div>
           <div className="font-display text-3xl leading-none mt-1" style={{ color }}>

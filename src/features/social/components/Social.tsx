@@ -79,7 +79,7 @@ export default function Social({ userId }: { userId: string }) {
 
       {/* Add by email */}
       <section className="px-5 mt-6">
-        <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">{t.social.addByEmail}</div>
+        <div className="mono-label mb-2">{t.social.addByEmail}</div>
         <div className="flex gap-2">
           <input
             type="email"
@@ -108,7 +108,7 @@ export default function Social({ userId }: { userId: string }) {
       {/* Pending requests */}
       {pending.length > 0 && (
         <section className="px-5 mt-8">
-          <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">{t.social.requests}</div>
+          <div className="mono-label mb-2">{t.social.requests}</div>
           <div className="flex flex-col">
             {pending.map((r) => (
               <div key={r.id} className="flex items-center gap-3 border-t border-[var(--rule)] last:border-b py-3">
@@ -135,7 +135,7 @@ export default function Social({ userId }: { userId: string }) {
 
       {/* Friends list */}
       <section className="px-5 mt-8">
-        <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)] mb-2">{t.social.allies}</div>
+        <div className="mono-label mb-2">{t.social.allies}</div>
         {friends.length === 0 ? (
           <div className="border border-dashed border-[var(--rule)] py-8 px-5 text-center font-mono text-[10px] tracking-[0.2em] text-[var(--fg-faint)]">
             {t.social.noAllies}

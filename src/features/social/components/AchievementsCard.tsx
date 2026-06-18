@@ -36,7 +36,7 @@ export default function AchievementsCard({ userId }: { userId: string }) {
   return (
     <section className="px-5 mt-10">
       <div className="flex items-baseline justify-between mb-3">
-        <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{t.achievements.title}</span>
+        <span className="mono-label">{t.achievements.title}</span>
         <span className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-dim)]">
           {count}/{BADGES.length}
         </span>
