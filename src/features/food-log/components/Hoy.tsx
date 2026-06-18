@@ -7,6 +7,7 @@ import { formatTime, todayMadrid } from "@/shared/lib/dates";
 import MacroRing from "@/features/food-log/components/MacroRing";
 import HydrationCard from "@/features/food-log/components/HydrationCard";
 import WorkoutCard from "@/features/workout/components/WorkoutCard";
+import HabitChecklist from "@/features/food-log/components/HabitChecklist";
 import { dailyInsights } from "@/features/food-log/lib/insights";
 
 type Props = {
@@ -123,6 +124,11 @@ export default function Hoy({
           <MacroRing value={totals.carbs}    target={targets.carbs}    label="CARB" unit="g" />
           <MacroRing value={totals.fat}      target={targets.fat}      label="FAT"  unit="g" />
         </div>
+      </motion.section>
+
+      {/* HABIT ONBOARDING — first-days checklist (auto-hides) */}
+      <motion.section {...SECTION_FADE} transition={{ delay: 0.06 }} className="px-5">
+        <HabitChecklist />
       </motion.section>
 
       {/* INSIGHTS — daily coaching */}
