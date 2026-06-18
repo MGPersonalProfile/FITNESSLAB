@@ -497,6 +497,34 @@ RETURNS TABLE (user_id uuid, display_name text, value integer) AS $$
 $$ LANGUAGE sql SECURITY DEFINER;
 
 -- ============================================
+-- ACHIEVEMENTS — earned badges (keys defined in app code) (added 2026-06-18)
+-- ============================================
+CREATE TABLE IF NOT EXISTS achievements (
+  user_id uuid REFERENCES auth.users NOT NULL,
+  key text NOT NULL,
+  earned_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  PRIMARY KEY (user_id, key)
+);
+
+ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Manage own achievements" ON achievements;
+CREATE POLICY "Manage own achievements" ON achievements
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Aggregate stats used to evaluate achievements client-side.
+CREATE OR REPLACE FUNCTION public.get_achievement_stats()
+RETURNS TABLE (total_logs integer, log_days integer, streak integer, best_plate integer, friends integer) AS $$
+  SELECT
+    (SELECT COUNT(*) FROM food_logs WHERE user_id = auth.uid())::integer,
+    (SELECT COUNT(DISTINCT log_date) FROM food_logs WHERE user_id = auth.uid())::integer,
+    public.get_user_streak(auth.uid()),
+    COALESCE((SELECT MAX(plate_score) FROM food_logs WHERE user_id = auth.uid()), 0)::integer,
+    (SELECT COUNT(*) FROM friendships
+       WHERE status = 'accepted' AND auth.uid() IN (requester, addressee))::integer;
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- ============================================
 -- INDEXES
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_food_logs_user_date    ON food_logs    (user_id, log_date DESC);

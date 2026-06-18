@@ -7,6 +7,7 @@ import { authedFetch } from "@/shared/lib/authedFetch";
 import type { Profile, WeightLog } from "@/shared/types";
 import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
+import AchievementsCard from "@/features/social/components/AchievementsCard";
 
 type Props = {
   userId: string;
@@ -317,6 +318,9 @@ export default function Perfil({
           </button>
         </div>
       </section>
+
+      {/* ACHIEVEMENTS */}
+      <AchievementsCard userId={userId} />
 
       {/* ACCOUNT */}
       <section className="px-5 mt-10">
