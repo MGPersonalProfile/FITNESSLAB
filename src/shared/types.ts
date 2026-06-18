@@ -11,6 +11,12 @@ export type Profile = {
   target_carbs: number;
   target_fat: number;
   weight_kg: number | null;
+  sex: "male" | "female" | null;
+  birth_year: number | null;
+  height_cm: number | null;
+  activity_level: "sedentary" | "light" | "moderate" | "active" | "very_active" | null;
+  goal: "lose" | "maintain" | "gain" | null;
+  onboarded: boolean;
   updated_at: string;
 };
 

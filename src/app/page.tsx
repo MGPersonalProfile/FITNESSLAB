@@ -18,6 +18,7 @@ import Perfil from "@/features/profile/components/Perfil";
 import ScanModal from "@/features/scan/components/ScanModal";
 import LogFormModal from "@/features/food-log/components/LogFormModal";
 import PlateValidationModal from "@/features/plate/components/PlateValidationModal";
+import OnboardingModal from "@/features/profile/components/OnboardingModal";
 
 export default function Home() {
   const router = useRouter();
@@ -283,6 +284,11 @@ export default function Home() {
       <PlateValidationModal
         open={plateOpen}
         onClose={() => setPlateOpen(false)}
+      />
+      <OnboardingModal
+        open={!!profile && !profile.onboarded}
+        userId={userId}
+        onDone={(p) => setProfile(p)}
       />
     </main>
   );

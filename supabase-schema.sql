@@ -21,6 +21,16 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Onboarding + goal-calculation fields — added 2026-06-18.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS sex text CHECK (sex IN ('male', 'female'));
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS birth_year integer;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS height_cm integer;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS activity_level text
+  CHECK (activity_level IN ('sedentary', 'light', 'moderate', 'active', 'very_active'));
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS goal text
+  CHECK (goal IN ('lose', 'maintain', 'gain'));
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS onboarded boolean NOT NULL DEFAULT false;
+
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can view their own profile" ON profiles;
