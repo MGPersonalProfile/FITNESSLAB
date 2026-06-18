@@ -7,6 +7,7 @@ import { authedFetch } from "@/shared/lib/authedFetch";
 import type { Profile, WeightLog } from "@/shared/types";
 import { formatRelativeDay, todayMadrid } from "@/shared/lib/dates";
 import { track } from "@/shared/lib/analytics";
+import { DEFAULT_TARGETS } from "@/shared/config";
 import AchievementsCard from "@/features/social/components/AchievementsCard";
 import NotificationsToggle from "@/features/notifications/NotificationsToggle";
 
@@ -26,10 +27,10 @@ export default function Perfil({
   onSignOut,
 }: Props) {
   const targetsFromProfile = () => ({
-    cal: profile?.target_calories ?? 2000,
-    prot: profile?.target_protein ?? 150,
-    carbs: profile?.target_carbs ?? 200,
-    fat: profile?.target_fat ?? 65,
+    cal: profile?.target_calories ?? DEFAULT_TARGETS.calories,
+    prot: profile?.target_protein ?? DEFAULT_TARGETS.protein,
+    carbs: profile?.target_carbs ?? DEFAULT_TARGETS.carbs,
+    fat: profile?.target_fat ?? DEFAULT_TARGETS.fat,
   });
 
   const [editing, setEditing] = useState(false);

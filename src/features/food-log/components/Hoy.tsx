@@ -9,6 +9,8 @@ import HydrationCard from "@/features/food-log/components/HydrationCard";
 import WorkoutCard from "@/features/workout/components/WorkoutCard";
 import HabitChecklist from "@/features/food-log/components/HabitChecklist";
 import { dailyInsights } from "@/features/food-log/lib/insights";
+import { plateColor } from "@/features/plate/lib/plate";
+import { DEFAULT_TARGETS } from "@/shared/config";
 
 type Props = {
   userId: string;
@@ -26,13 +28,6 @@ const SECTION_FADE = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
 };
-
-// Mirrors the verdict thresholds in features/plate/lib/plate.ts.
-function plateScoreColor(score: number): string {
-  if (score >= 80) return "var(--success)";
-  if (score >= 50) return "var(--warning)";
-  return "var(--accent)";
-}
 
 function insightColor(level: "good" | "warn" | "info"): string {
   if (level === "good") return "var(--success)";
@@ -55,10 +50,10 @@ export default function Hoy({
   const insights = dailyInsights(todayLogs, profile);
 
   const targets = {
-    calories: profile?.target_calories ?? 2000,
-    protein:  profile?.target_protein  ?? 150,
-    carbs:    profile?.target_carbs    ?? 200,
-    fat:      profile?.target_fat      ?? 65,
+    calories: profile?.target_calories ?? DEFAULT_TARGETS.calories,
+    protein:  profile?.target_protein  ?? DEFAULT_TARGETS.protein,
+    carbs:    profile?.target_carbs    ?? DEFAULT_TARGETS.carbs,
+    fat:      profile?.target_fat      ?? DEFAULT_TARGETS.fat,
   };
 
   const opName =
@@ -368,7 +363,7 @@ function LogRow({
             {log.plate_score != null && (
               <span
                 className="ml-auto px-1.5 py-0.5 border tracking-[0.15em]"
-                style={{ color: plateScoreColor(log.plate_score), borderColor: plateScoreColor(log.plate_score) }}
+                style={{ color: plateColor(log.plate_score), borderColor: plateColor(log.plate_score) }}
               >
                 ◐{log.plate_score}
               </span>

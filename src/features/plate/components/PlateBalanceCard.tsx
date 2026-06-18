@@ -1,6 +1,7 @@
 "use client";
 
-import type { PlateEval, PlateVerdict } from "@/shared/types";
+import type { PlateEval } from "@/shared/types";
+import { plateColor } from "@/features/plate/lib/plate";
 
 const GROUPS = [
   { key: "verduras_frutas_pct", label: "VERD/FRUTA", target: 50, color: "var(--success)" },
@@ -9,14 +10,8 @@ const GROUPS = [
   { key: "otros_pct", label: "OTROS", target: 0, color: "var(--fg-faint)" },
 ] as const;
 
-function verdictColor(v: PlateVerdict): string {
-  if (v === "Balanceado") return "var(--success)";
-  if (v === "Mejorable") return "var(--warning)";
-  return "var(--accent)";
-}
-
 export default function PlateBalanceCard({ data }: { data: PlateEval }) {
-  const color = verdictColor(data.veredicto);
+  const color = plateColor(data.score);
   return (
     <div className="border border-[var(--rule)]">
       {/* Header: score + verdict */}

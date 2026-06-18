@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { addWater, fetchWaterToday } from "@/features/food-log/data";
 import { track } from "@/shared/lib/analytics";
+import { HYDRATION } from "@/shared/config";
 
-const GOAL_ML = 2500;
-const STEPS = [250, 500];
+const GOAL_ML = HYDRATION.goalMl;
+const STEPS = HYDRATION.stepsMl;
 
 export default function HydrationCard({ userId }: { userId: string }) {
   const [ml, setMl] = useState(0);

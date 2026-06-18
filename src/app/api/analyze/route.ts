@@ -2,9 +2,10 @@ import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { getUserFromRequest, supabaseAdmin } from '@/shared/lib/supabaseServer';
+import { AI } from '@/shared/config';
 
 // Daily AI scans allowed per user (guards the shared Gemini free-tier quota).
-const DAILY_SCAN_CAP = 30;
+const DAILY_SCAN_CAP = AI.dailyScanCap;
 
 const AnalysisSchema = z.object({
   nombre: z.string().describe('Concise food name in Spanish, e.g. "Pollo a la plancha con arroz"'),

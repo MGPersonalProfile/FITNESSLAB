@@ -8,8 +8,9 @@ import {
   fetchWeekWorkoutMinutes,
   type WorkoutKind,
 } from "@/features/workout/data";
+import { WORKOUT } from "@/shared/config";
 
-const MINUTE_STEPS = [30, 45, 60];
+const MINUTE_STEPS = WORKOUT.minuteSteps;
 
 export default function WorkoutCard({ userId }: { userId: string }) {
   const [weekMin, setWeekMin] = useState(0);

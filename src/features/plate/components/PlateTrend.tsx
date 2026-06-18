@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchPlateTrend, type PlateTrendPoint } from "@/features/plate/data";
-
-function color(score: number): string {
-  if (score >= 80) return "var(--success)";
-  if (score >= 50) return "var(--warning)";
-  return "var(--accent)";
-}
+import { plateColor as color } from "@/features/plate/lib/plate";
 
 export default function PlateTrend({ userId }: { userId: string }) {
   const [points, setPoints] = useState<PlateTrendPoint[]>([]);

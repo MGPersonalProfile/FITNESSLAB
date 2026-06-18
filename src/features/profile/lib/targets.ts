@@ -46,6 +46,11 @@ export const GOAL_LABELS: Record<Goal, string> = {
   gain: "Ganar músculo",
 };
 
+// Macro split applied to the calorie target.
+const PROTEIN_G_PER_KG = 2;
+const FAT_CAL_RATIO = 0.25;
+const CALORIE_ROUNDING = 10;
+
 const round = (n: number, step = 1) => Math.round(n / step) * step;
 
 /**
@@ -57,10 +62,10 @@ export function computeTargets(input: TargetInput): Targets {
   const s = input.sex === "male" ? 5 : -161;
   const bmr = 10 * input.weightKg + 6.25 * input.heightCm - 5 * age + s;
   const tdee = bmr * ACTIVITY_FACTOR[input.activity];
-  const calories = round(tdee * (1 + GOAL_DELTA[input.goal]), 10);
+  const calories = round(tdee * (1 + GOAL_DELTA[input.goal]), CALORIE_ROUNDING);
 
-  const protein = round(2 * input.weightKg);
-  const fat = round((calories * 0.25) / 9);
+  const protein = round(PROTEIN_G_PER_KG * input.weightKg);
+  const fat = round((calories * FAT_CAL_RATIO) / 9);
   const carbs = Math.max(0, round((calories - protein * 4 - fat * 9) / 4));
 
   return { calories, protein, carbs, fat };

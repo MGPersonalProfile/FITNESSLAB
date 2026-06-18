@@ -11,6 +11,7 @@ import {
   joinChallenge,
   leaveChallenge,
 } from "@/features/social/challenges";
+import { CHALLENGE, clamp } from "@/shared/config";
 
 const METRIC_LABEL: Record<ChallengeMetric, string> = {
   log_days: "Días registrando",
@@ -24,7 +25,7 @@ export default function Challenges({ userId }: { userId: string }) {
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [metric, setMetric] = useState<ChallengeMetric>("log_days");
-  const [target, setTarget] = useState(7);
+  const [target, setTarget] = useState<number>(CHALLENGE.defaultTarget);
 
   const reload = useCallback(async () => {
     const [list, ids] = await Promise.all([fetchActiveChallenges(), fetchMyChallengeIds(userId)]);
@@ -56,7 +57,7 @@ export default function Challenges({ userId }: { userId: string }) {
 
   const create = async () => {
     if (!title.trim()) return;
-    await createChallenge(userId, title.trim(), metric, target, 7);
+    await createChallenge(userId, title.trim(), metric, target, CHALLENGE.durationDays);
     track("challenge_created", { metric, target });
     setTitle("");
     setCreating(false);
@@ -112,10 +113,10 @@ export default function Challenges({ userId }: { userId: string }) {
             <input
               type="number"
               value={target}
-              onChange={(e) => setTarget(Math.max(1, Math.min(7, parseInt(e.target.value || "1", 10))))}
+              onChange={(e) => setTarget(clamp(parseInt(e.target.value || "1", 10), 1, CHALLENGE.maxTarget))}
               className="w-16 bg-transparent border-b border-[var(--rule)] focus:border-[var(--accent)] outline-none font-display text-xl text-[var(--fg)] text-center"
             />
-            <span className="text-[var(--fg-faint)]">/ 7 días</span>
+            <span className="text-[var(--fg-faint)]">/ {CHALLENGE.maxTarget} días</span>
           </div>
           <button
             onClick={create}

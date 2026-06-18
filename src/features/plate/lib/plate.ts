@@ -21,10 +21,20 @@ export function scorePlate(p: PlateAnalysis): number {
   return Math.max(0, Math.min(100, Math.round(100 - penalty / 2)));
 }
 
+// Score bands. Single source of truth for verdicts and colors across the UI.
+export const PLATE_THRESHOLDS = { balanced: 80, ok: 50 } as const;
+
 export function verdictFor(score: number): PlateVerdict {
-  if (score >= 80) return "Balanceado";
-  if (score >= 50) return "Mejorable";
+  if (score >= PLATE_THRESHOLDS.balanced) return "Balanceado";
+  if (score >= PLATE_THRESHOLDS.ok) return "Mejorable";
   return "Desbalanceado";
+}
+
+// CSS color var for a score, matching the verdict bands.
+export function plateColor(score: number): string {
+  if (score >= PLATE_THRESHOLDS.balanced) return "var(--success)";
+  if (score >= PLATE_THRESHOLDS.ok) return "var(--warning)";
+  return "var(--accent)";
 }
 
 // Combine the AI's raw proportions with a deterministic score + verdict.

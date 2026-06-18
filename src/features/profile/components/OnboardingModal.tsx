@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
 import { track } from "@/shared/lib/analytics";
+import { CALIBRATION, clamp } from "@/shared/config";
 import type { Profile } from "@/shared/types";
 import {
   ACTIVITY_LABELS,
@@ -24,9 +25,9 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function OnboardingModal({ open, userId, onDone }: Props) {
   const [sex, setSex] = useState<Sex>("male");
-  const [age, setAge] = useState(25);
-  const [heightCm, setHeightCm] = useState(175);
-  const [weightKg, setWeightKg] = useState(75);
+  const [age, setAge] = useState<number>(CALIBRATION.age.default);
+  const [heightCm, setHeightCm] = useState<number>(CALIBRATION.height.default);
+  const [weightKg, setWeightKg] = useState<number>(CALIBRATION.weight.default);
   const [activity, setActivity] = useState<ActivityLevel>("moderate");
   const [goal, setGoal] = useState<Goal>("maintain");
   const [saving, setSaving] = useState(false);
@@ -108,9 +109,9 @@ export default function OnboardingModal({ open, userId, onDone }: Props) {
             </Field>
 
             <div className="grid grid-cols-3 gap-3">
-              <NumField label="EDAD" unit="años" value={age} onChange={setAge} min={12} max={100} />
-              <NumField label="ALTURA" unit="cm" value={heightCm} onChange={setHeightCm} min={120} max={230} />
-              <NumField label="PESO" unit="kg" value={weightKg} onChange={setWeightKg} min={30} max={250} />
+              <NumField label="EDAD" unit="años" value={age} onChange={setAge} min={CALIBRATION.age.min} max={CALIBRATION.age.max} />
+              <NumField label="ALTURA" unit="cm" value={heightCm} onChange={setHeightCm} min={CALIBRATION.height.min} max={CALIBRATION.height.max} />
+              <NumField label="PESO" unit="kg" value={weightKg} onChange={setWeightKg} min={CALIBRATION.weight.min} max={CALIBRATION.weight.max} />
             </div>
 
             {/* Activity */}
@@ -221,17 +222,32 @@ function NumField({
   min: number;
   max: number;
 }) {
+  // Local draft string so the user can clear/type freely; clamp only on blur.
+  const [draft, setDraft] = useState(String(value));
+
+  // Keep the draft in sync if the value changes from outside.
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setDraft(String(value));
+  }
+
+  const commit = () => {
+    const n = parseInt(draft, 10);
+    const next = clamp(Number.isFinite(n) ? n : min, min, max);
+    onChange(next);
+    setDraft(String(next));
+  };
+
   return (
     <div className="border border-[var(--rule)] p-3">
       <div className="font-mono text-[9px] tracking-[0.3em] text-[var(--fg-faint)]">{label}</div>
       <input
         type="number"
         inputMode="numeric"
-        value={value}
-        onChange={(e) => {
-          const n = parseInt(e.target.value || "0", 10);
-          onChange(Math.min(max, Math.max(min, n)));
-        }}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
         className="w-full bg-transparent border-b border-[var(--fg-faint)]/40 focus:border-[var(--accent)] outline-none font-display text-2xl text-[var(--fg)] mt-1"
       />
       <div className="font-mono text-[8px] tracking-[0.25em] text-[var(--fg-faint)] mt-0.5">{unit}</div>

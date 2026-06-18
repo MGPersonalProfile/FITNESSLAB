@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePlate, scorePlate, verdictFor } from "./plate";
+import { PLATE_THRESHOLDS, evaluatePlate, plateColor, scorePlate, verdictFor } from "./plate";
 import type { PlateAnalysis } from "@/shared/types";
 
 const make = (v: number, c: number, p: number, o: number): PlateAnalysis => ({
@@ -39,6 +39,15 @@ describe("verdictFor", () => {
     expect(verdictFor(79)).toBe("Mejorable");
     expect(verdictFor(50)).toBe("Mejorable");
     expect(verdictFor(49)).toBe("Desbalanceado");
+  });
+});
+
+describe("plateColor", () => {
+  it("maps score bands to the verdict colors", () => {
+    expect(plateColor(PLATE_THRESHOLDS.balanced)).toBe("var(--success)");
+    expect(plateColor(PLATE_THRESHOLDS.balanced - 1)).toBe("var(--warning)");
+    expect(plateColor(PLATE_THRESHOLDS.ok)).toBe("var(--warning)");
+    expect(plateColor(PLATE_THRESHOLDS.ok - 1)).toBe("var(--accent)");
   });
 });
 

@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchLeaderboard, type LeaderboardRow } from "@/features/social/data";
-
-function plateColor(score: number): string {
-  if (score >= 80) return "var(--success)";
-  if (score >= 50) return "var(--warning)";
-  return "var(--accent)";
-}
+import { plateColor } from "@/features/plate/lib/plate";
 
 export default function Leaderboard({ userId }: { userId: string }) {
   const [rows, setRows] = useState<LeaderboardRow[]>([]);

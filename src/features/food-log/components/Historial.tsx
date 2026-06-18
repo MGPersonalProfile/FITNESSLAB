@@ -6,18 +6,13 @@ import { supabase } from "@/shared/lib/supabaseClient";
 import type { DailyTotal, FoodLog, Profile } from "@/shared/types";
 import { formatRelativeDay, formatTime, todayMadrid } from "@/shared/lib/dates";
 import PlateTrend from "@/features/plate/components/PlateTrend";
+import { plateColor } from "@/features/plate/lib/plate";
+import { DEFAULT_TARGETS } from "@/shared/config";
 
 type Props = {
   userId: string;
   profile: Profile | null;
 };
-
-// Mirrors the verdict thresholds in features/plate/lib/plate.ts.
-function plateScoreColor(score: number): string {
-  if (score >= 80) return "var(--success)";
-  if (score >= 50) return "var(--warning)";
-  return "var(--accent)";
-}
 
 export default function Historial({ userId, profile }: Props) {
   const [days, setDays] = useState<DailyTotal[]>([]);
@@ -63,7 +58,7 @@ export default function Historial({ userId, profile }: Props) {
     }
   };
 
-  const target = profile?.target_calories ?? 2000;
+  const target = profile?.target_calories ?? DEFAULT_TARGETS.calories;
 
   return (
     <div className="flex flex-col pb-8">
@@ -183,8 +178,8 @@ export default function Historial({ userId, profile }: Props) {
                               <span
                                 className="font-mono text-[8px] tracking-[0.15em] px-1 py-0.5 border shrink-0"
                                 style={{
-                                  color: plateScoreColor(log.plate_score),
-                                  borderColor: plateScoreColor(log.plate_score),
+                                  color: plateColor(log.plate_score),
+                                  borderColor: plateColor(log.plate_score),
                                 }}
                               >
                                 ◐{log.plate_score}
