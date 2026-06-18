@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/shared/lib/supabaseClient";
 import type { DailyTotal, FoodLog, Profile } from "@/shared/types";
 import { formatRelativeDay, formatTime, todayMadrid } from "@/shared/lib/dates";
+import PlateTrend from "@/features/plate/components/PlateTrend";
 
 type Props = {
   userId: string;
@@ -81,7 +82,11 @@ export default function Historial({ userId, profile }: Props) {
         <div className="rule-dashed w-full mt-4" />
       </header>
 
-      <section className="mt-6">
+      <div className="mt-6">
+        <PlateTrend userId={userId} />
+      </div>
+
+      <section>
         {loading && (
           <div className="px-5 font-mono text-[10px] tracking-[0.3em] text-[var(--fg-faint)]">
             CARGANDO...
