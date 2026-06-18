@@ -86,6 +86,39 @@ CREATE POLICY "Users can delete their own food logs" ON food_logs
   FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- ============================================
+-- AI_USAGE — per-user daily AI scan counter (free-tier quota guard)
+-- Written server-side with the service role; readable by the owner.
+-- ============================================
+CREATE TABLE IF NOT EXISTS ai_usage (
+  user_id uuid REFERENCES auth.users NOT NULL,
+  day date NOT NULL DEFAULT (timezone('Europe/Madrid', now()))::date,
+  count integer NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, day)
+);
+
+ALTER TABLE ai_usage ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own ai usage" ON ai_usage;
+CREATE POLICY "Users can view their own ai usage" ON ai_usage
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- Atomic increment + read-back; returns the new count for the given day.
+CREATE OR REPLACE FUNCTION public.bump_ai_usage(uid uuid)
+RETURNS integer AS $$
+DECLARE
+  d date := (timezone('Europe/Madrid', now()))::date;
+  c integer;
+BEGIN
+  INSERT INTO ai_usage (user_id, day, count)
+  VALUES (uid, d, 1)
+  ON CONFLICT (user_id, day)
+  DO UPDATE SET count = ai_usage.count + 1
+  RETURNING count INTO c;
+  RETURN c;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
 -- SAVED_MEALS
 -- ============================================
 CREATE TABLE IF NOT EXISTS saved_meals (

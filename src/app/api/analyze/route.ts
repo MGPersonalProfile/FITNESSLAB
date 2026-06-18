@@ -1,6 +1,10 @@
 import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
 import { z } from 'zod';
+import { getUserFromRequest, supabaseAdmin } from '@/shared/lib/supabaseServer';
+
+// Daily AI scans allowed per user (guards the shared Gemini free-tier quota).
+const DAILY_SCAN_CAP = 30;
 
 const AnalysisSchema = z.object({
   nombre: z.string().describe('Concise food name in Spanish, e.g. "Pollo a la plancha con arroz"'),
@@ -54,10 +58,26 @@ const AnalysisSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return Response.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     const { image } = await req.json();
 
     if (!image) {
       return Response.json({ error: 'No image provided' }, { status: 400 });
+    }
+
+    // Quota guard: atomically bump today's counter and reject over the cap.
+    const { data: usage, error: usageErr } = await supabaseAdmin.rpc('bump_ai_usage', {
+      uid: user.id,
+    });
+    if (!usageErr && typeof usage === 'number' && usage > DAILY_SCAN_CAP) {
+      return Response.json(
+        { error: `Límite diario alcanzado (${DAILY_SCAN_CAP} análisis). Vuelve mañana o usa el log manual.` },
+        { status: 429 },
+      );
     }
 
     const { object } = await generateObject({

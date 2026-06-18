@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { processImage } from "@/shared/lib/image";
+import { authedFetch } from "@/shared/lib/authedFetch";
 import type { AnalysisResult } from "@/shared/types";
 
 export type AnalysisStatus = "idle" | "analyzing" | "done" | "error";
@@ -26,12 +27,22 @@ export function useDishAnalysis() {
       setPreview(base64);
       setImageBlob(blob);
 
-      const res = await fetch("/api/analyze", {
+      const res = await authedFetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64 }),
       });
-      if (!res.ok) throw new Error("AI failed");
+      if (!res.ok) {
+        // Surface server-provided messages (401 sesión, 429 cuota) when present.
+        let msg = "Análisis fallido. Reintenta o usa el log manual.";
+        try {
+          const body = await res.json();
+          if (body?.error) msg = body.error;
+        } catch {}
+        setStatus("error");
+        setError(msg);
+        return null;
+      }
 
       const data: AnalysisResult = await res.json();
       const durationMs = Math.round(performance.now() - t0);
